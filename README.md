@@ -43,6 +43,10 @@
 - Docker.
 - MongoDB TSE tool `mlaunch`.
 - modify the `/etc/hosts` file.
+- pip install requests python-dotenv
+
+
+
 
 ---------------------------------
 
