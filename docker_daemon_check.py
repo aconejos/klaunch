@@ -13,6 +13,7 @@ The main() function checks the Docker daemon status and attempts to restart it i
 """
 import subprocess
 import time
+import platform
 
 def check_docker_status():
     try:
@@ -21,28 +22,32 @@ def check_docker_status():
     except subprocess.CalledProcessError:
         return False
 
-def restart_docker():
+def start_docker_mac():
     try:
-        subprocess.run(["sudo", "systemctl", "restart", "docker"], check=True)
+        subprocess.run(["open", "-a", "Docker"], check=True)
         return True
     except subprocess.CalledProcessError:
         return False
 
 def main():
+    if platform.system() != "Darwin":
+        print("This script is designed to run on macOS.")
+        return
+
     if check_docker_status():
         print("Docker daemon is up and running.")
     else:
-        print("Docker daemon is not running. Attempting to restart...")
-        if restart_docker():
-            print("Docker daemon restarted. Waiting for it to become ready...")
-            for _ in range(30):  # Wait up to 30 seconds
+        print("Docker daemon is not running. Attempting to start Docker...")
+        if start_docker_mac():
+            print("Docker application started. Waiting for the daemon to become ready...")
+            for _ in range(60):  # Wait up to 60 seconds
                 if check_docker_status():
                     print("Docker daemon is now up and running.")
                     return
                 time.sleep(1)
             print("Error: Docker daemon failed to start within the expected time.")
         else:
-            print("Error: Failed to restart Docker daemon.")
+            print("Error: Failed to start Docker application.")
 
 if __name__ == "__main__":
     main()
