@@ -1,3 +1,17 @@
+"""
+This script generates a Docker Compose configuration file for a Kafka cluster with optional components like Zookeeper, Schema Registry, Prometheus, and Confluent Control Center.
+
+The script uses a set of templates to generate the Docker Compose configuration based on the provided command-line arguments or a configuration file. It supports the following features:
+
+- Configurable number of Kafka brokers, Zookeeper nodes, and Schema Registry instances
+- Optional inclusion of Prometheus and Confluent Control Center
+- Customizable Docker image release version
+- Configurable internal and external protocols for Kafka brokers
+- Configurable number of racks for broker distribution
+- Configurable number of Zookeeper groups in a hierarchy
+
+The generated Docker Compose configuration file can be used to deploy the Kafka cluster and its related components using Docker Compose.
+"""
 from __future__ import print_function
 
 import argparse
