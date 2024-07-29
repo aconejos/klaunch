@@ -1,0 +1,16 @@
+{
+    "name": "mdb-kafka-connector-default",
+    "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector",
+    "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/?replicaSet=replset",
+    "database": "mdb_kafka_test",
+    "collection": "connector_test",
+    "tasks.max": "1",
+    "poll.max.batch.size": "1000",
+    "poll.await.time.ms": "5000",
+    "output.format.key": "json",
+    "output.format.value": "json",
+    "change.stream.full.document": "updateLookup",
+    "change.stream.full.document.before.change": "whenAvailable"
+    } 
+}
