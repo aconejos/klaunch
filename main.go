@@ -16,7 +16,6 @@ func main() {
 
 		switch command {
 		case "start":
-			// Call start function (you'll need to implement this)
 			fmt.Println("Starting klaunch...")
 
 			// Call functions from check_connector_updates.go
@@ -27,17 +26,17 @@ func main() {
 			
 			// Spin up docker-compose
 			if updateAvailable == nil  {
-				//cmd := exec.Command("docker-compose", "up", "-d")
 				cmd := exec.Command("open", "-a", "Docker")
 				err := cmd.Run()
 				if err != nil {
 					fmt.Println("Error docker daemon not running", err)
 				} else {
 					fmt.Println("Starting docker daemon!")
+					// 	give docker time to start
 					time.Sleep(3 * time.Second)
 				}
 
-				
+				// Start docker-compose
 				cmd = exec.Command("docker-compose", "up", "-d")
 				err = cmd.Run()
 				if err != nil {
@@ -50,7 +49,7 @@ func main() {
 			// Call stop function
 			fmt.Println("Stopping klaunch...")
 
-			// list all running containers remove them
+			// list all running containers 
 			listContainersCmd := exec.Command("docker", "ps", "-aq")
 			
 			output, err := listContainersCmd.Output()
@@ -60,6 +59,7 @@ func main() {
 			}
 			
 			containerIDs := strings.Split(string(output), "\n")
+			// remove all the containers
 			for _, id := range containerIDs {
 				if id != "" {
 					// stop the container
@@ -73,9 +73,8 @@ func main() {
 			}
 			fmt.Println("Containers removed successfully!")
 		case "create-topic":
-			// Call create function (you'll need to implement this)
 			fmt.Println("Creating new topic...")
-				// Call create_new_topic function (you'll need to implement this)
+			// Call create function 
 			err := create_new_topic()
 			if err != nil {
 				fmt.Println("Error creating new topic:", err)
@@ -85,18 +84,17 @@ func main() {
 		case "delete-topic":
 			// Call delete function (you'll need to implement this)
 			fmt.Println("Deleting topic...")
-		case "list-topics":
-			// Call list function (you'll need to implement this)
-			fmt.Println("Currently deployed topics:")
-			err := list_running_topics()
+		case "list":
+			// Call list function
+			err := list_components()
 			if err != nil {
 				fmt.Println("Error listing topic:", err)
 			}
 		default:
-			fmt.Println("Invalid command. Possible commands: start, stop, create-topic, delete-topic, list-topics")
+			fmt.Println("Invalid command. Possible commands: start, stop, create-topic, delete-topic, list")
 		}
 	} else {
-		fmt.Println("Please provide a command: start, stop, create-topic, delete-topic, list-topics")
+		fmt.Println("Please provide a command: start, stop, create-topic, delete-topic, list")
 	}
 
 }
