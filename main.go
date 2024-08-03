@@ -43,7 +43,7 @@ func main() {
 				if err != nil {
 					fmt.Println("Error starting docker-compose:", err)
 				} else {
-					fmt.Println("Docker-compose started successfully!")
+					fmt.Println("Klaunch docker-compose started successfully!")
 				}
 			}	
 		case "stop":
@@ -87,7 +87,11 @@ func main() {
 			fmt.Println("Deleting topic...")
 		case "list-topics":
 			// Call list function (you'll need to implement this)
-			fmt.Println("Listing topics...")
+			fmt.Println("Currently deployed topics:")
+			err := list_running_topics()
+			if err != nil {
+				fmt.Println("Error listing topic:", err)
+			}
 		default:
 			fmt.Println("Invalid command. Possible commands: start, stop, create-topic, delete-topic, list-topics")
 		}
