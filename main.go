@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"os/exec"
 	"os"
+	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -27,8 +28,6 @@ func main() {
 			if updateAvailable == nil  {
 				//cmd := exec.Command("docker-compose", "up", "-d")
 				cmd := exec.Command("docker-compose", "up", "-d")
-				// show the contect of the command before running it
-				fmt.Println(cmd.String())
 				err := cmd.Run()
 				if err != nil {
 					fmt.Println("Error starting docker-compose:", err)
@@ -47,8 +46,32 @@ func main() {
 				fmt.Println("New topic created successfully!")
 			}	
 		case "stop":
-			// Call stop function (you'll need to implement this)
+			// Call stop function
 			fmt.Println("Stopping klaunch...")
+
+			// list all running containers remove them
+			listContainersCmd := exec.Command("docker", "ps", "-aq")
+			
+			output, err := listContainersCmd.Output()
+			if err != nil {
+				fmt.Println("Error listing containers:", err)
+				return
+			}
+			
+			containerIDs := strings.Split(string(output), "\n")
+			for _, id := range containerIDs {
+				if id != "" {
+					// stop the container
+					stopCmd := exec.Command("docker", "rm", "-f", id)
+					err := stopCmd.Run()
+					if err != nil {
+						fmt.Println("Error stopping container:", err)
+						return
+					}
+				}
+			}
+			fmt.Println("Containers removed successfully!")
+
 		case "delete-topic":
 			// Call delete function (you'll need to implement this)
 			fmt.Println("Deleting topic...")
@@ -56,7 +79,7 @@ func main() {
 			// Call list function (you'll need to implement this)
 			fmt.Println("Listing topics...")
 		default:
-			fmt.Println("Invalid command. Possible commands: start, create, stop, delete, list")
+			fmt.Println("Invalid command. Possible commands: start, stop, create-topic, delete-topic, list-topics")
 		}
 	} else {
 		fmt.Println("Please provide a command: start, stop, create-topic, delete-topic, list-topics")
