@@ -28,19 +28,18 @@ func check_connector_updates() error {
 	re := regexp.MustCompile(`<a href="(\d*(\.\d+)*)/?"`)
 	matches := re.FindAllStringSubmatch(html, -1)
 	versions := make([]string, len(matches))
+	// semantic version strings must begin with a leading "v", as in "v1.0.0"
 	for i, match := range matches {
-		versions[i] = strings.TrimSuffix(match[1], "/")
+		versions[i] = fmt.Sprintf("v%s",strings.TrimSuffix(match[1], "/"))
 	}
+	// sort versions semmatically
 	semver.Sort(versions)
-	// print all sorted versions	
-	fmt.Println("All sorted versions:")	
-	for _, version := range versions {
-		fmt.Println(version)
-	}
 	latestVersion := versions[len(versions)-1]
 
-	fmt.Printf("MongoDB Kafka connector latest Version: %s\n", latestVersion)
+	// clean up v
+	latestVersion = strings.TrimPrefix(latestVersion, "v")
 
+	fmt.Printf("MongoDB Kafka connector latest Version: %s\n", latestVersion)
 	// Construct download link
 	downloadLink := fmt.Sprintf("%s%s/mongo-kafka-connect-%s-all.jar", url, latestVersion, latestVersion)
 
