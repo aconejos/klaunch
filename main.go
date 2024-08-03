@@ -2,18 +2,54 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 func main() {
-	// Call functions from check_docker_daemon.go
-	daemonStatus := check_docker_daemon()
-	if daemonStatus != nil {
-		fmt.Println("Docker daemon error status:", daemonStatus)
+
+	// Check for input parameters
+	if len(os.Args) > 1 {
+		command := os.Args[1]
+
+		switch command {
+		case "start":
+			// Call start function (you'll need to implement this)
+			fmt.Println("Starting...")
+				// Call functions from check_docker_daemon.go
+			daemonStatus := check_docker_daemon()
+			if daemonStatus != nil {
+				fmt.Println("Docker daemon error status:", daemonStatus)
+			}
+
+			// Call functions from check_connector_updates.go
+			updateAvailable := check_connector_updates()
+			if updateAvailable != nil {
+				fmt.Println("Error checking for connector updates:", updateAvailable)
+			} 
+		case "create-topic":
+			// Call create function (you'll need to implement this)
+			fmt.Println("Creating...")
+				// Call create_new_topic function (you'll need to implement this)
+			err := create_new_topic()
+			if err != nil {
+				fmt.Println("Error creating new topic:", err)
+			} else {
+				fmt.Println("New topic created successfully!")
+			}	
+		case "stop":
+			// Call stop function (you'll need to implement this)
+			fmt.Println("Stopping...")
+		case "delete-topic":
+			// Call delete function (you'll need to implement this)
+			fmt.Println("Deleting...")
+		case "list-topics":
+			// Call list function (you'll need to implement this)
+			fmt.Println("Listing...")
+		default:
+			fmt.Println("Invalid command. Possible commands: start, create, stop, delete, list")
+		}
+	} else {
+		fmt.Println("Please provide a command: start, create, stop, delete, list")
 	}
 
-	// Call functions from check_connector_updates.go
-	updateAvailable := check_connector_updates()
-	if updateAvailable != nil {
-		fmt.Println("Error checking for connector updates:", updateAvailable)
-	} 
 }
