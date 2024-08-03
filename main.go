@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
 	"os"
 )
 
@@ -15,17 +16,26 @@ func main() {
 		case "start":
 			// Call start function (you'll need to implement this)
 			fmt.Println("Starting klaunch...")
-				// Call functions from check_docker_daemon.go
-			daemonStatus := check_docker_daemon()
-			if daemonStatus != nil {
-				fmt.Println("Docker daemon error status:", daemonStatus)
-			}
 
 			// Call functions from check_connector_updates.go
 			updateAvailable := check_connector_updates()
 			if updateAvailable != nil {
 				fmt.Println("Error checking for connector updates:", updateAvailable)
 			} 
+			
+			// Spin up docker-compose
+			if updateAvailable == nil  {
+				//cmd := exec.Command("docker-compose", "up", "-d")
+				cmd := exec.Command("docker-compose", "up", "-d")
+				// show the contect of the command before running it
+				fmt.Println(cmd.String())
+				err := cmd.Run()
+				if err != nil {
+					fmt.Println("Error starting docker-compose:", err)
+				} else {
+					fmt.Println("Docker-compose started successfully!")
+				}
+			}
 		case "create-topic":
 			// Call create function (you'll need to implement this)
 			fmt.Println("Creating new topic...")

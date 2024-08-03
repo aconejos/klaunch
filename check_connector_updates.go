@@ -45,15 +45,12 @@ func check_connector_updates() error {
 
 	// Check if file exists and download if not
 	filePath := filepath.Join(downloadDir, fmt.Sprintf("mongo-kafka-connect-%s-all.jar", latestVersion))
-	if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-		fmt.Println("File already exists.")
-	} else {
-		err = download_file(downloadLink, filePath)
-		if err != nil {
-			fmt.Println("Failed to download the JAR file:", err)
-			return err
-		}
+	err := download_file(downloadLink, filePath)
+	if err != nil {
+		fmt.Println("Failed to download the JAR file:", err)
+		return err
 	}
+	
 
 	// Read current version from .env file
 	envContent, _ := os.ReadFile(envFile)
