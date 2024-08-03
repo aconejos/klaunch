@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func create_new_topic() error {
+func create_container() error {
 	url := "http://localhost:8083/connectors"
 
 	fmt.Print("Enter the path to the configuration file: ")

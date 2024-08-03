@@ -72,16 +72,16 @@ func main() {
 				}
 			}
 			fmt.Println("Containers removed successfully!")
-		case "create-topic":
+		case "create ":
 			fmt.Println("Creating new topic...")
 			// Call create function 
-			err := create_new_topic()
+			err := create_container()
 			if err != nil {
 				fmt.Println("Error creating new topic:", err)
 			} else {
 				fmt.Println("New topic created successfully!")
 			}
-		case "delete-topic":
+		case "delete ":
 			// Call delete function (you'll need to implement this)
 			fmt.Println("Deleting topic...")
 		case "list":
@@ -91,10 +91,10 @@ func main() {
 				fmt.Println("Error listing topic:", err)
 			}
 		default:
-			fmt.Println("Invalid command. Possible commands: start, stop, create-topic, delete-topic, list")
+			fmt.Println("Invalid command. Possible commands: start, stop, create, delete, list")
 		}
 	} else {
-		fmt.Println("Please provide a command: start, stop, create-topic, delete-topic, list")
+		fmt.Println("Please provide a command: start, stop, create, delete, list")
 	}
 
 }
