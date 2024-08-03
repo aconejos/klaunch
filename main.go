@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -27,23 +28,23 @@ func main() {
 			// Spin up docker-compose
 			if updateAvailable == nil  {
 				//cmd := exec.Command("docker-compose", "up", "-d")
-				cmd := exec.Command("docker-compose", "up", "-d")
+				cmd := exec.Command("open", "-a", "Docker")
 				err := cmd.Run()
+				if err != nil {
+					fmt.Println("Error docker daemon not running", err)
+				} else {
+					fmt.Println("Starting docker daemon!")
+					time.Sleep(3 * time.Second)
+				}
+
+				
+				cmd = exec.Command("docker-compose", "up", "-d")
+				err = cmd.Run()
 				if err != nil {
 					fmt.Println("Error starting docker-compose:", err)
 				} else {
 					fmt.Println("Docker-compose started successfully!")
 				}
-			}
-		case "create-topic":
-			// Call create function (you'll need to implement this)
-			fmt.Println("Creating new topic...")
-				// Call create_new_topic function (you'll need to implement this)
-			err := create_new_topic()
-			if err != nil {
-				fmt.Println("Error creating new topic:", err)
-			} else {
-				fmt.Println("New topic created successfully!")
 			}	
 		case "stop":
 			// Call stop function
@@ -71,7 +72,16 @@ func main() {
 				}
 			}
 			fmt.Println("Containers removed successfully!")
-
+		case "create-topic":
+			// Call create function (you'll need to implement this)
+			fmt.Println("Creating new topic...")
+				// Call create_new_topic function (you'll need to implement this)
+			err := create_new_topic()
+			if err != nil {
+				fmt.Println("Error creating new topic:", err)
+			} else {
+				fmt.Println("New topic created successfully!")
+			}
 		case "delete-topic":
 			// Call delete function (you'll need to implement this)
 			fmt.Println("Deleting topic...")
