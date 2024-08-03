@@ -66,14 +66,14 @@ func main() {
 					stopCmd := exec.Command("docker", "rm", "-f", id)
 					err := stopCmd.Run()
 					if err != nil {
-						fmt.Println("Error stopping container:", err)
+						fmt.Println("Error deleting container:", err)
 						return
 					}
 				}
 			}
 			fmt.Println("Containers removed successfully!")
-		case "create ":
-			fmt.Println("Creating new topic...")
+		case "create":
+			fmt.Println("Creating new container...")
 			// Call create function 
 			err := create_container()
 			if err != nil {
@@ -81,8 +81,9 @@ func main() {
 			} else {
 				fmt.Println("New topic created successfully!")
 			}
-		case "delete ":
+		case "delete":
 			// Call delete function (you'll need to implement this)
+			fmt.Println("Deleting containers...")
 			fmt.Println("Deleting topic...")
 		case "list":
 			// Call list function

@@ -66,7 +66,7 @@ func list_topics() error {
 		}
 	}
 	if topics == nil {
-		fmt.Println("No topics created. Remember they have to an exinting message to be listed.")
+		fmt.Println("No topics created. Remember only topics with at least 1 message will be listed.")
 		return nil
 	}
 
