@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func main() {
+func check_connector_updates() error {
 	pwd, _ := os.Getwd()
 
 	// Define variables
@@ -41,14 +41,14 @@ func main() {
 
 	// Check if file exists and download if not
 	filePath := filepath.Join(downloadDir, fmt.Sprintf("mongo-kafka-connect-%s-all.jar", latestVersion))
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		err = downloadFile(downloadLink, filePath)
+	if _, err := os.Stat(filePath); !os.IsNotExist(err) {
+		fmt.Println("File already exists.")
+	} else {
+		err = download_file(downloadLink, filePath)
 		if err != nil {
 			fmt.Println("Failed to download the JAR file:", err)
-			os.Exit(1)
+			return err
 		}
-	} else {
-		fmt.Println("File already exists.")
 	}
 
 	// Read current version from .env file
@@ -63,9 +63,10 @@ func main() {
 	}
 
 	fmt.Println("Latest version of mongo-kafka-connect has been downloaded and updated in the .env file.")
+	return nil
 }
 
-func downloadFile(url string, filepath string) error {
+func download_file(url string, filepath string) error {
 	// Create the file
 	out, err := os.Create(filepath)
 	if err != nil {
