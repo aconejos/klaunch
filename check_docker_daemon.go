@@ -37,11 +37,9 @@ func check_docker_daemon() error {
 				}
 				time.Sleep(1 * time.Second)
 			}
-			Error := "Error: Docker daemon failed to start within the expected time."
-			return fmt.Errorf(Error)
+			return fmt.Errorf("docker daemon failed to start within the expected time")
 		} else {
-			Error := "Error: Failed to start Docker application."
-			return fmt.Errorf(Error)
+			return fmt.Errorf("failed to start Docker application")
 		}
 	}
 	return nil

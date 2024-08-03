@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
+	"golang.org/x/mod/semver"
 )
 
 func check_connector_updates() error {
@@ -24,14 +24,19 @@ func check_connector_updates() error {
 	body, _ := io.ReadAll(resp.Body)
 	html := string(body)
 
-	// Extract latest version
-	re := regexp.MustCompile(`<a href="([1-9]\d*(\.\d+)*)/?"`)
+	// Extract latest version	
+	re := regexp.MustCompile(`<a href="(\d*(\.\d+)*)/?"`)
 	matches := re.FindAllStringSubmatch(html, -1)
 	versions := make([]string, len(matches))
 	for i, match := range matches {
 		versions[i] = strings.TrimSuffix(match[1], "/")
 	}
-	sort.Strings(versions)
+	semver.Sort(versions)
+	// print all sorted versions	
+	fmt.Println("All sorted versions:")	
+	for _, version := range versions {
+		fmt.Println(version)
+	}
 	latestVersion := versions[len(versions)-1]
 
 	fmt.Printf("MongoDB Kafka connector latest Version: %s\n", latestVersion)
@@ -55,14 +60,14 @@ func check_connector_updates() error {
 	envContent, _ := os.ReadFile(envFile)
 	re = regexp.MustCompile(`MONGO_KAFKA_CONNECT_VERSION=(.+)`)
 	match := re.FindStringSubmatch(string(envContent))
-	if len(match) > 1 {
+	if len(match) > 1 && match[1] != latestVersion {
 		currentVersion := match[1]
 		fmt.Printf("Updating MONGO_KAFKA_CONNECT_VERSION from %s to %s\n", currentVersion, latestVersion)
 		updatedContent := strings.Replace(string(envContent), currentVersion, latestVersion, 1)
 		os.WriteFile(envFile, []byte(updatedContent), 0644)
+		fmt.Println("Latest version of mongo-kafka-connect has been downloaded and updated in the .env file.")
 	}
 
-	fmt.Println("Latest version of mongo-kafka-connect has been downloaded and updated in the .env file.")
 	return nil
 }
 
