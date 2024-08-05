@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"net/http"
@@ -11,12 +10,13 @@ import (
 func create_container() error {
 	url := "http://localhost:8083/connectors"
 
-	fmt.Print("Enter the path to the configuration file: ")
+	fmt.Println("Enter the path to the configuration file: ")
 	var filePath string
 	fmt.Scanln(&filePath)
 	// if no file path is provided use "case_configs/default_topic.json" as default
 	if filePath == "" {
 		filePath = "./case_configs/default_topic.json"
+		fmt.Println("Taking the default configuration file case_configs/default_topic.json")
 	}
 
 	file, err := os.ReadFile(filePath)
@@ -25,13 +25,11 @@ func create_container() error {
 		return err
 	}
 
-	data, err := json.Marshal(file)
-	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
-		return err
-	}
+	// show the content of file
+	fmt.Println("Using the following configuration:")
+	fmt.Println(string(file))
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(file))
 	if err != nil {
 		fmt.Println("Error creating request:", err)
 		return err
@@ -53,7 +51,7 @@ func create_container() error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("failed to create topic: %s", resp.Status)
 	}
 
