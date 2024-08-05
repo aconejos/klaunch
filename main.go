@@ -86,8 +86,14 @@ func main() {
 				fmt.Println("New topic created successfully!")
 			}
 		case "delete":
-			// Call delete function (you'll need to implement this)
+			// Call delete function
 			fmt.Println("Deleting containers...")
+			err := delete_connectors()
+			if err != nil {
+				fmt.Println("Error deleting topic:", err)
+			} else {
+				fmt.Println("Containers deleted successfully!")
+			}
 			fmt.Println("Deleting topic...")
 		case "list":
 			// Call list function

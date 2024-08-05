@@ -37,12 +37,7 @@ func create_container() error {
 
 	req.Header.Set("Content-Type", "application/json")
 
-	// display the request
-	//fmt.Println("Request:")
-	//fmt.Println(req)
-	//fmt.Println("Request body:")
-	//fmt.Println(string(data))
-
+	// Create an HTTP client and send the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
