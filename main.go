@@ -37,7 +37,7 @@ func main() {
 				}
 
 				// Start docker-compose
-				cmd = exec.Command("docker-compose", "up", "-d")
+				cmd = exec.Command("docker-compose","-p", "klaunch", "up", "-d")
 				err = cmd.Run()
 				if err != nil {
 					fmt.Println("Error starting docker-compose:", err)
@@ -50,7 +50,7 @@ func main() {
 			fmt.Println("Stopping klaunch...")
 
 			// list all running containers 
-			listContainersCmd := exec.Command("docker", "ps", "-aq")
+			listContainersCmd := exec.Command("docker-compose","-p", "klaunch", "ps", "-aq")
 			
 			output, err := listContainersCmd.Output()
 			if err != nil {
