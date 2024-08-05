@@ -18,6 +18,10 @@ func main() {
 		case "start":
 			fmt.Println("Starting klaunch...")
 
+			mognodbAvailable := check_mongodb_running()
+			if mognodbAvailable != nil {
+				fmt.Println("Error checking for running MongDB:", mognodbAvailable)
+			} 
 			// Call functions from check_connector_updates.go
 			updateAvailable := check_connector_updates()
 			if updateAvailable != nil {

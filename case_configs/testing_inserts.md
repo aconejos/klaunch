@@ -1,6 +1,5 @@
 -- Deploy connector 
-curl -s -X POST -H 'Content-Type: application/json'  \
---data @./case_configs/default_topic.json http://localhost:8083/connectors
+curl -s -X POST -H 'Content-Type: application/json' --data @./case_configs/default_topic.json http://localhost:8083/connectors
 
 
 -- Delete connector
@@ -12,6 +11,7 @@ docker exec kafka-connect kafka-topics \
   --delete \
   --bootstrap-server kafka2:19092,kafka3:19093,kafka1:19091 \
   --topic mdb_kafka_test.connector_test
+
 
 
 

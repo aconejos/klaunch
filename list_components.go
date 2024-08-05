@@ -10,6 +10,7 @@ type ExcludedTopic struct {
 	Name string
 }
 
+// default topics to exclude from the list
 var excludedTopics = []ExcludedTopic{
 	{"__consumer_offsets"},
 	{"_confluent-command"},
@@ -59,6 +60,7 @@ func list_topics() error {
 	lines := strings.Split(string(output), "\n")
 	var topics []string
 
+	// Exclude topics that are in the excludedTopics slice
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if len(line) > 0 && !isExcludedTopic(line) {
