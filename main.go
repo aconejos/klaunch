@@ -95,6 +95,12 @@ func main() {
 				fmt.Println("Containers deleted successfully!")
 			}
 			fmt.Println("Deleting topic...")
+			err = delete_topics()
+			if err != nil {
+				fmt.Println("Error deleting topic:", err)
+			} else {
+				fmt.Println("Topics deleted successfully!")
+			}
 		case "list":
 			// Call list function
 			err := list_components()

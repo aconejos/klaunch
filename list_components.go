@@ -26,11 +26,11 @@ var excludedTopics = []ExcludedTopic{
 
 
 func list_components() error {
-	err := list_connectors() 
+	_, err := list_connectors() 
 	if err != nil {
 		return err
 	}
-	err = list_topics()
+	_, err = list_topics()
 	if err != nil {
 		return err
 	}
@@ -38,23 +38,23 @@ func list_components() error {
 }
 
 
-func list_connectors() error {
+func list_connectors() (string, error) {
 	listCmd := exec.Command("docker", "exec", "kafka-connect", "curl", "-s", "http://localhost:8083/connectors")
 	output, err := listCmd.Output()
 	// show the content of output
 	fmt.Println("List of connectors:")
 	println(string(output))
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return string(output),nil
 }
 
-func list_topics() error {
+func list_topics() ([]string, error) {
 	listCmd := exec.Command("docker", "exec", "kafka-connect", "kafka-topics", "--bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091", "--list")
 	output, err := listCmd.Output()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	lines := strings.Split(string(output), "\n")
@@ -69,14 +69,14 @@ func list_topics() error {
 	}
 	if topics == nil {
 		fmt.Println("No topics created. Remember only topics with at least 1 message will be listed.")
-		return nil
+		return nil,nil
 	}
 
 	for _, topic := range topics {
 		fmt.Println("List of topics:")
 		fmt.Println(topic)
 	}
-	return nil
+	return topics,nil
 }
 
 
