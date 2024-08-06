@@ -1,38 +1,42 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os/exec"
+	"strings"
 )
 
-type ConnectorInfo struct {
-	Name string `json:"name"`
-}
 
 func delete_connectors() error {
 	listCmd := exec.Command("docker", "exec", "kafka-connect", "curl", "-s", "http://localhost:8083/connectors")
-	output, err := listCmd.Output()
+	connectorsList, err := listCmd.Output()
 	if err != nil {
 		fmt.Println("Error listing connectors:", err)
 		return err
 	}
 
-	var connectors []ConnectorInfo
-	err = json.Unmarshal(output, &connectors)
-	if err != nil {
-		fmt.Println("Error parsing connectors:", err)
-		return err
+	// removing brackets from output
+	cleanConnectorList := strings.TrimPrefix(strings.TrimSuffix(string(connectorsList), "]"), "[")
 
-	}
-
+	// break the content of cleanConnectorList into a slide of strings
+	connectorList := strings.Split(cleanConnectorList, ",")
 	
-	for _, connector := range connectors {
+	for _, connector := range connectorList {
 		// curl DELETE  http://localhost:8083/connectors/mdb-kafka-connector-default
 		url := "http://localhost:8083/connectors/"
+
+		// remove double quotes from connector name
+		connector = strings.Trim(connector, "\"")
+		if connector == "" {
+			return nil	
+		}
 		// concat url value with connector name
-		url = url + connector.Name
+		url = url + connector
+
+		// print url value
+		println("Deleting: " + url)
+
 		req, err := http.NewRequest("DELETE", url, nil)
 		if err != nil {
 			fmt.Println("Error creating request:", err)

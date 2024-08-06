@@ -22,3 +22,8 @@ use mdb_kafka_test
 db.connector_test.insertOne({name: "Example Document", description: "This is an example document1"})
 db.connector_test.insertOne({name: "Example Document", description: "This is an example document2"})
 db.connector_test.insertOne({name: "Example Document", description: "This is an example document3"})
+
+-- simple source connector
+
+use Tutorial1
+db.orders.insertOne( { 'order_id' : 1, 'item' : 'coffee' } )
