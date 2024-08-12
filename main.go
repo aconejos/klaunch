@@ -107,6 +107,33 @@ func main() {
 			if err != nil {
 				fmt.Println("Error listing topic:", err)
 			}
+		case "logs":
+			// Call logs function
+			fmt.Println("Extracting logs...")
+			// Get the current date and format it as YYYYMMDD_HHMMSS
+			datePrefix := time.Now().Format("20060102_150405") // Format: YYYYMMDD_HHMMSS
+				
+			// Construct the filename with the date prefix
+			filename := fmt.Sprintf("logs/%s_kafka_connect.log", datePrefix)
+				
+			// Define the command to get logs from the Docker container
+			cmd := exec.Command("docker", "logs", "kafka-connect")
+				
+			// Execute the command and capture the output
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				fmt.Printf("Failed to execute command: %v\nOutput: %s\n", err, string(output))
+				return
+			}
+		
+			// Write the output to a file
+			err = os.WriteFile(filename, output, 0644)
+			if err != nil {
+				fmt.Printf("Failed to write to file: %v\n", err)
+				return
+			}
+
+			fmt.Printf("Logs saved to %s\n", filename)
 		default:
 			fmt.Println("Invalid command. Possible commands: start, stop, create, delete, list")
 		}
