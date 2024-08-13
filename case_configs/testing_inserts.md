@@ -12,12 +12,9 @@ docker exec kafka-connect kafka-topics \
   --bootstrap-server kafka2:19092,kafka3:19093,kafka1:19091 \
   --topic mdb_kafka_test.connector_test
 
-docker exec -it kafka-connect kafka-console-consumer --topic mdb_kafka_test.connector_test --from-beginning --bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091
-
-
 -- track changes
 
-docker exec -it kafka-connect kafka-console-consumer --topic disable.db_name.coll_name --from-beginning --bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091
+docker exec kafka-connect kafka-console-consumer --topic disable.db_name.coll_name --from-beginning --max-messages 10 --bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091
 
 -- insert test data
 
@@ -32,3 +29,29 @@ db.connector_test.insertOne({name: "Example Document", description: "This is an 
 use Tutorial1
 db.orders.insertOne( { 'order_id' : 1, 'item' : 'coffee' } )
 
+
+
+
+`curl -i -X PUT -H "Content-Type: application/json" \http://localhost:8083/connectors/connector_name1/config \-d '{
+             "connector.class":"com.mongodb.kafka.connect.MongoSourceConnector",
+             "tasks.max":10,
+             "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/replicaSet=replset",
+             "database":"db_name",
+             "collection":"coll_name",
+             "startup.mode":"copy_existing",
+             "pipeline":"[{\"$match\":{\"fullDocument.knp\":true}},{\"$project\":{\"fullDocument.eventID\":1}}]",
+             "topic.prefix":"testing",
+             "topic.namespace.map":"{\"namespace\":\"topic_name\"}",
+             "poll.max.batch.size":1000,
+             "poll.await.time.ms":5000,
+             "publish.full.document.only":false,
+             "publish.full.document.only.tombstone.on.delete":false,
+             "change.stream.full.document":"updateLookup",
+             "key.converter" : "org.apache.kafka.connect.storage.StringConverter",
+             "value.converter" : "org.apache.kafka.connect.storage.StringConverter",
+             "output.format.key":"json",
+             "output.format.value":"json",
+             "output.json.formatter":"com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson",
+             "mongo.errors.log.enable":true
+
+      }'`

@@ -3,6 +3,7 @@ module github.com/agustinconejos/klaunch
 go 1.22.1
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.9.2
 	go.mongodb.org/mongo-driver v1.16.0
 	golang.org/x/mod v0.19.0
 )
