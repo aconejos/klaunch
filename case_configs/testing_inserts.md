@@ -15,6 +15,9 @@ docker exec kafka-connect kafka-topics \
 docker exec -it kafka-connect kafka-console-consumer --topic mdb_kafka_test.connector_test --from-beginning --bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091
 
 
+-- track changes
+
+docker exec -it kafka-connect kafka-console-consumer --topic disable.db_name.coll_name --from-beginning --bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091
 
 -- insert test data
 
@@ -28,3 +31,4 @@ db.connector_test.insertOne({name: "Example Document", description: "This is an 
 
 use Tutorial1
 db.orders.insertOne( { 'order_id' : 1, 'item' : 'coffee' } )
+
