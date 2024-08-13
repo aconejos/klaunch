@@ -12,6 +12,7 @@ docker exec kafka-connect kafka-topics \
   --bootstrap-server kafka2:19092,kafka3:19093,kafka1:19091 \
   --topic mdb_kafka_test.connector_test
 
+docker exec -it kafka-connect kafka-console-consumer --topic mdb_kafka_test.connector_test --from-beginning --bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091
 
 
 

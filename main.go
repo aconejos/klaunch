@@ -135,10 +135,10 @@ func main() {
 
 			fmt.Printf("Logs saved to %s\n", filename)
 		default:
-			fmt.Println("Invalid command. Possible commands: start, stop, create, delete, list")
+			fmt.Println("Invalid command. Possible commands: start, stop, create, delete, list, logs")
 		}
 	} else {
-		fmt.Println("Please provide a command: start, stop, create, delete, list")
+		fmt.Println("Please provide a command: start, stop, create, delete, list, logs")
 	}
 
 }
