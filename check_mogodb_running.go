@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -40,14 +41,13 @@ func check_mongodb_running() error {
 			rs.reconfig(cfg);
 			`
 
-			// find the port number
+			// find the port number from the connection string
 			port := strings.Trim(regexp.MustCompile(`:\d+`).FindStringSubmatch(addr)[0], ":")
 
-
 			// Execute the script
-			cmd := exec.Command("mongosh", "--port", port, "--quiet","--eval", script)
+			cmd := exec.Command("mongosh", "--port", port, "--quiet", "--eval", script)
 
-			//print the command 
+			//print the command
 			//fmt.Println(cmd.Args)
 
 			output, err := cmd.CombinedOutput()
@@ -63,6 +63,30 @@ func check_mongodb_running() error {
 			client.Disconnect(context.Background())
 			return fmt.Errorf("failed to run ismaster command: %v", err)
 		}
+	}
+
+	// Read the current hosts file
+	content, err := ioutil.ReadFile("/etc/hosts")
+	if err != nil {
+		fmt.Println("Error reading hosts file:", err)
+		return err
+	}
+
+	// Convert content to string
+	contentStr := string(content)
+
+	// Check if the entry exists
+	if !strings.Contains(contentStr, "127.0.0.1 host.docker.internal") {
+		// Entry does not exist, append it
+		newContent := contentStr + "\n127.0.0.1 host.docker.internal"
+
+		// Write the new content back to the hosts file
+		err = ioutil.WriteFile("/etc/hosts", []byte(newContent), 0644)
+		if err != nil {
+			fmt.Println("Error appending to hosts file:", err)
+			return err
+		}
+		fmt.Println("Entry appended successfully.")
 	}
 
 	fmt.Println("Successfully connected to MongoDB")
