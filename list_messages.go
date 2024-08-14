@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
 func list_messages() error {
@@ -19,8 +19,25 @@ func list_messages() error {
 	fmt.Scanln(&topicName)
 	fmt.Println("docker exec kafka-connect kafka-console-consumer --topic disable.db_name.coll_name --from-beginning --bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091")
 
+	//// loop the topic showing messages
+	//offset := 0
+	//
+	//for  {
+	//	listCmd := exec.Command("docker", "exec", "kafka-connect", "kafka-console-consumer ", "--topic",topicName,"--max-messages 1","--offset", string(offset), "--bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091")
+	//	fmt.Print(listCmd)
+	//	output, err := listCmd.Output()
+	//	if err != nil {
+	//		return err
+	//	}
+	//	offset++
+	//	fmt.Println(output)
+	//	if offset==10 {
+	//		break
+	//	}
+	//}
+
 	// define the request
-	broker := "kafka2"
+	broker := "host.docker.internal:8083"
 	topics := []string{topicName}
 	group := "connect-cluster-group"
 	sigchan := make(chan os.Signal, 1)
@@ -28,9 +45,12 @@ func list_messages() error {
 
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":               broker,
-		"group.id":             group,
+		"group.id":                        group,
 		"go.application.rebalance.enable": true, // delegate Assign() responsibility to app
 		"session.timeout.ms":              6000,
+		"receive.message.max.bytes":       2147483647,
+		"security.protocol":               "PLAINTEXT",
+		"api.version.request":             1,
 		"default.topic.config":            kafka.ConfigMap{"auto.offset.reset": "earliest"}})
 
 	if err != nil {

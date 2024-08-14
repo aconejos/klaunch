@@ -24,9 +24,8 @@ var excludedTopics = []ExcludedTopic{
 	{"docker-connect-status"},
 }
 
-
 func list_components() error {
-	_, err := list_connectors() 
+	_, err := list_connectors()
 	if err != nil {
 		return err
 	}
@@ -37,7 +36,6 @@ func list_components() error {
 	return nil
 }
 
-
 func list_connectors() (string, error) {
 	listCmd := exec.Command("docker", "exec", "kafka-connect", "curl", "-s", "http://localhost:8083/connectors")
 	output, err := listCmd.Output()
@@ -47,7 +45,7 @@ func list_connectors() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(output),nil
+	return string(output), nil
 }
 
 func list_topics() ([]string, error) {
@@ -69,16 +67,16 @@ func list_topics() ([]string, error) {
 	}
 	if topics == nil {
 		fmt.Println("No topics created. Remember only topics with at least 1 message will be listed.")
-		return nil,nil
+		return nil, nil
 	}
+
+	fmt.Println("List of topics:")
 
 	for _, topic := range topics {
-		fmt.Println("List of topics:")
 		fmt.Println(topic)
 	}
-	return topics,nil
+	return topics, nil
 }
-
 
 func isExcludedTopic(topic string) bool {
 	for _, excluded := range excludedTopics {
