@@ -14,7 +14,7 @@ func delete_topics() error {
 
 	for _, topic := range topicList {
 		deleteCmd := exec.Command("docker", "exec", "kafka-connect", "kafka-topics", "--delete", "--bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091", "--topic", topic)
-		_, err := deleteCmd.Output()
+		err := deleteCmd.Run()
 		if err != nil {
 			return err
 		}

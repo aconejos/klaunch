@@ -12,7 +12,7 @@ func main() {
 
 	// show componentOrMessage value
 	if len(os.Args) < 2 {
-		fmt.Println("No command provided.")
+		fmt.Println("Invalid command. Possible commands: start, stop, create, delete, show, logs")
 		return
 	}
 	// Check for input parameters
