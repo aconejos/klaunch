@@ -2,7 +2,7 @@
 version: '3'
 services:
   zookeeper1:
-    image: confluentinc/cp-zookeeper:7.2.6
+    image: confluentinc/cp-zookeeper:7.7.0
     hostname: zookeeper1
     container_name: zookeeper1
     environment:
@@ -73,6 +73,8 @@ services:
     container_name: kafka3
     depends_on:
       - zookeeper1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181
@@ -131,19 +133,20 @@ services:
     ports:
       - 8083:8083
       - 8091:8091
+      - 19093:19093
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
-      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
       CONNECT_REST_PORT: 8083
-      CONNECT_GROUP_ID: connect-cluster-group
-      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_GROUP_ID: "connect-cluster-group"
+      CONNECT_CONFIG_STORAGE_TOPIC: "docker-connect-configs"
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
-      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_TOPIC: "docker-connect-offsets"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_STATUS_STORAGE_TOPIC: "docker-connect-status"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_ZOOKEEPER_CONNECT: "zookeeper1:2181"
       CONNECT_PLUGIN_PATH: ${CONNECT_PLUGIN_PATH}
@@ -164,7 +167,7 @@ services:
       - $PWD/volumes/mongo-kafka-connect-${MONGO_KAFKA_CONNECT_VERSION}-all.jar:/usr/share/confluent-hub-components/mongo-kafka-connect-${MONGO_KAFKA_CONNECT_VERSION}-all.jar
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.2.6
+    image: confluentinc/cp-schema-registry:7.7.0
     hostname: schema-registry
     container_name: schema-registry
     depends_on:

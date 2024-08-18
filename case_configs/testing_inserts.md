@@ -39,7 +39,7 @@ db.orders.insertOne( { 'order_id' : 1, 'item' : 'coffee' } )
              "database":"db_name",
              "collection":"coll_name",
              "startup.mode":"copy_existing",
-             "pipeline":"[{\"$match\":{\"fullDocument.knp\":true}},{\"$project\":{\"fullDocument.eventID\":1}}]",
+             "pipeline":"[{\"$match\":{\"fullDocument.knp\":true}},{\"$project\":{\"fullDocument.eventID\":1, \"ns\":1}}]",
              "topic.prefix":"testing",
              "topic.namespace.map":"{\"namespace\":\"topic_name\"}",
              "poll.max.batch.size":1000,
