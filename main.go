@@ -21,12 +21,19 @@ func main() {
 	case "start":
 		fmt.Println("Starting klaunch...")
 
+		var connectorVersion string
+		if len(os.Args) >= 3 {
+			connectorVersion = os.Args[2]
+		} else {
+			connectorVersion = ""
+		}
+
 		mognodbAvailable := check_mongodb_running()
 		if mognodbAvailable != nil {
 			fmt.Println("Error checking for running MongDB:", mognodbAvailable)
 		}
 		// Call functions from check_connector_updates.go
-		updateAvailable := check_connector_updates()
+		updateAvailable := check_connector_updates(connectorVersion)
 		if updateAvailable != nil {
 			fmt.Println("Error checking for connector updates:", updateAvailable)
 		}

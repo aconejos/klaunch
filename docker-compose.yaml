@@ -39,7 +39,7 @@ services:
       KAFKA_BROKER_RACK: rack-0
     ports:
       - 9091:9091
-      
+
   kafka2:
     image: confluentinc/cp-server:7.7.0
     hostname: kafka2
@@ -150,7 +150,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   cmak:
-    image: aconejos-cmak:latest
+    image: aconejos/cmak-aconejos:latest
     container_name: cmak
     ports:
       - "9000:9000"

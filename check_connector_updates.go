@@ -8,10 +8,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
 	"golang.org/x/mod/semver"
 )
 
-func check_connector_updates() error {
+func check_connector_updates(inputVersion string) error {
 	pwd, _ := os.Getwd()
 
 	// Define variables
@@ -24,13 +25,13 @@ func check_connector_updates() error {
 	body, _ := io.ReadAll(resp.Body)
 	html := string(body)
 
-	// Extract latest version	
+	// Extract latest version
 	re := regexp.MustCompile(`<a href="(\d*(\.\d+)*)/?"`)
 	matches := re.FindAllStringSubmatch(html, -1)
 	versions := make([]string, len(matches))
 	// semantic version strings must begin with a leading "v", as in "v1.0.0"
 	for i, match := range matches {
-		versions[i] = fmt.Sprintf("v%s",strings.TrimSuffix(match[1], "/"))
+		versions[i] = fmt.Sprintf("v%s", strings.TrimSuffix(match[1], "/"))
 	}
 	// sort versions semmatically
 	semver.Sort(versions)
@@ -39,7 +40,14 @@ func check_connector_updates() error {
 	// clean up v
 	latestVersion = strings.TrimPrefix(latestVersion, "v")
 
-	fmt.Printf("MongoDB Kafka connector latest Version: %s\n", latestVersion)
+	if len(inputVersion) == 0 {
+		fmt.Printf("MongoDB Kafka connector latest Version: %s\n", latestVersion)
+	} else {
+		fmt.Printf("Using MongoDB Kafka connector Version: %s\n", inputVersion)
+		latestVersion = inputVersion
+
+	}
+
 	// Construct download link
 	downloadLink := fmt.Sprintf("%s%s/mongo-kafka-connect-%s-all.jar", url, latestVersion, latestVersion)
 
@@ -50,12 +58,16 @@ func check_connector_updates() error {
 		fmt.Println("Failed to download the JAR file:", err)
 		return err
 	}
-	
 
 	// Read current version from .env file
 	envContent, _ := os.ReadFile(envFile)
 	re = regexp.MustCompile(`MONGO_KAFKA_CONNECT_VERSION=(.+)`)
 	match := re.FindStringSubmatch(string(envContent))
+	
+	// show match value 
+	//fmt.Printf("MONGO_KAFKA_CONNECT_VERSION=%s\n", match[1])
+	//fmt.Printf("I will updated to this =%s\n", latestVersion)
+
 	if len(match) > 1 && match[1] != latestVersion {
 		currentVersion := match[1]
 		fmt.Printf("Updating MONGO_KAFKA_CONNECT_VERSION from %s to %s\n", currentVersion, latestVersion)
