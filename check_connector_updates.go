@@ -55,7 +55,7 @@ func check_connector_updates(inputVersion string) error {
 	filePath := filepath.Join(downloadDir, fmt.Sprintf("mongo-kafka-connect-%s-all.jar", latestVersion))
 	err := download_file(downloadLink, filePath)
 	if err != nil {
-		fmt.Println("Failed to download the JAR file:", err)
+		fmt.Println("Check the list of existing versions: ", url)
 		return err
 	}
 
@@ -73,7 +73,7 @@ func check_connector_updates(inputVersion string) error {
 		fmt.Printf("Updating MONGO_KAFKA_CONNECT_VERSION from %s to %s\n", currentVersion, latestVersion)
 		updatedContent := strings.Replace(string(envContent), currentVersion, latestVersion, 1)
 		os.WriteFile(envFile, []byte(updatedContent), 0644)
-		fmt.Println("Latest version of mongo-kafka-connect has been downloaded and updated in the .env file.")
+		fmt.Println("Choosen version of mongo-kafka-connect has been downloaded and updated in the .env file.")
 	}
 
 	return nil
