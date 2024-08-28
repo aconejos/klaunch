@@ -1,3 +1,0 @@
-CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
-MONGO_KAFKA_CONNECT_VERSION=1.11.0
-CASENUMBER=000001
