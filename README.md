@@ -10,9 +10,9 @@ This is a CLI tool to perform MongoDB Kafka connect reproductions.
 ##  Commands
 
 - start [connector version]: Creates a Docker compose with all the necesary infrastrusture components.
-By default will connect to release repository and download the latest version of MongoDB Kafka Connect.
+By default will connect to the [release repository](https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/) and download the latest version of MongoDB Kafka Connect.
 
-- stop: Deletes the Docker compose completely.
+- stop: Deletes the Docker compose components completely.
 
 - create: Creates a connector Task based on an input config file path.(json format) 
 
@@ -24,19 +24,6 @@ By default will connect to release repository and download the latest version of
 
 - logs: Will dump a the Kafka connect log file into $repository/logs path with the following format: `$timestamps_kadka_connect.log`
 
-
-
--  [MongoDB Kafka Connector](https://docs.mongodb.com/kafka-connector/current/) & Kafka repro environment easy to build & destroy.
-- Visual monitoring system - Console Management 
-  The Monitoring expresses these logs visually, to make analyzing the system more straightforward providing the following monitoring:
-  - [MongoDB Kafka Connector](https://docs.mongodb.com/kafka-connector/current/) metrics on Kafka Connect Grafana dashboard.
-  - Kafka broker & Zookeeper Grafana dashboards.
-  - Monitoring database on Prometheus.
-
-- Communication between Docker and `mlaunch` repro tool.
-    - TCP/IP communication between a docker container to localhost MongoDB Replica Set or `mongod` service.
-
-**[MongoDB Kafka Connector](https://docs.mongodb.com/kafka-connector/current/) Monitoring dashboard examples:**
 
 ### Components
 
