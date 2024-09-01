@@ -12,7 +12,7 @@ func main() {
 
 	// show componentOrMessage value
 	if len(os.Args) < 2 {
-		fmt.Println("Invalid command. Possible commands: start, stop, create, delete, show, logs")
+		fmt.Println("Invalid command. Possible commands: start, stop, create, delete, show, logs, help")
 		return
 	}
 	// Check for input parameters
@@ -163,8 +163,18 @@ func main() {
 		}
 
 		fmt.Printf("Logs saved to %s\n", filename)
+	case "help":
+		fmt.Println(" - start [connector version]: Creates a Docker compose with all the necesary infrastrusture components. By default will connect to the release repository and download the latest version of MongoDB Kafka Connect. ")
+		fmt.Println(" - stop: Deletes the Docker compose components completely. ")
+		fmt.Println(" - create: Creates a connector Task based on an input config file path.(json format) ")
+		fmt.Println(" - delete: Deletes all existing Tasks and topics. Infrastructure remains. ")
+		fmt.Println(" - show [components - messages] ")
+		fmt.Println("      Components: will list running Tasks and exisiting Topics. ")
+		fmt.Println("      Messages: will list existing Topics and will create a consumer process to display messages on the console. ")
+		fmt.Println(" - logs: Will dump a the Kafka connect log file into $repository/logs path with the following format: $timestamps_kadka_connect.log ")
+
 	default:
-		fmt.Println("Invalid command. Possible commands: start, stop, create, delete, show, logs")
+		fmt.Println("Invalid command. Possible commands: start, stop, create, delete, show, logs, help")
 	}
 
 }
