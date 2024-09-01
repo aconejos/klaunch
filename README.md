@@ -4,6 +4,7 @@ This is a CLI tool to perform MongoDB Kafka connect reproductions.
 
 ## Pre requisites
 
+- Docker installed.
 - mlaunch installed.
 - 3 node replicased running on localy.
 
@@ -32,6 +33,10 @@ By default will connect to the [release repository](https://repo1.maven.org/mave
 - [Cluster Manager for Apache Kafka](https://github.com/yahoo/CMAK) is a tool for managing Apache Kafka clusters.
 - [Zookeeper](https://zookeeper.apache.org/) is a centralized service for maintaining configuration and naming.
 
+
+### Diagram
+
+![Diagram](./diagram.png)
 ---------------------------------
 
 
