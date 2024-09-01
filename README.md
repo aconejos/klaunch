@@ -23,7 +23,7 @@ By default will connect to the [release repository](https://repo1.maven.org/mave
     - Components: will list running Tasks and exisiting Topics.
     - Messages: will list existing Topics and will create a consumer process to display messages on the console.
 
-- logs: Will dump a the Kafka connect log file into $repository/logs path with the following format: `$timestamps_kadka_connect.log`
+- logs: Will dump a the Kafka connect log file into $repository/logs path with the following format: `$timestamps_kafka_connect.log`
 
 
 ### Components
