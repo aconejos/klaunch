@@ -2,3 +2,6 @@
 *.iml
 latency_time_kafka.md
 to.do
+.vscode
+logs/*
+.DS_Store
