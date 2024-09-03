@@ -20,7 +20,7 @@ By default connects to the [release repository](https://repo1.maven.org/maven2/o
 - delete: Deletes all existing Tasks and topics. Infrastructure remains.
 
 - show [components - messages]
-    - Components: List running Tasks and exisiting Topics.
+    - Components: List running Tasks and existing Topics.
     - Messages: List existing Topics and will create a consumer process to display messages on the console.
 
 - logs: Dump a the Kafka connect log file into $repository/logs path with the following format: `$timestamps_kafka_connect.log`

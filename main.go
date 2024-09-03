@@ -169,7 +169,7 @@ func main() {
 		fmt.Println(" - create: Creates a connector Task based on an input config file path.(json format) ")
 		fmt.Println(" - delete: Deletes all existing Tasks and topics. Infrastructure remains. ")
 		fmt.Println(" - show [components - messages] ")
-		fmt.Println("      Components: will list running Tasks and exisiting Topics. ")
+		fmt.Println("      Components: will list running Tasks and existing Topics. ")
 		fmt.Println("      Messages: will list existing Topics and will create a consumer process to display messages on the console. ")
 		fmt.Println(" - logs: Will dump a the Kafka connect log file into $repository/logs path with the following format: $timestamps_kadka_connect.log ")
 
