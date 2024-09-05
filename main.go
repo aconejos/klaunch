@@ -164,7 +164,7 @@ func main() {
 
 		fmt.Printf("Logs saved to %s\n", filename)
 	case "help":
-		fmt.Println(" - start [connector version]: Creates a Docker compose with all the necesary infrastrusture components. By default will connect to the release repository and download the latest version of MongoDB Kafka Connect. ")
+		fmt.Println(" - start [connector version]: Creates a Docker compose with all the necessary infrastructure components. By default will connect to the release repository and download the latest version of MongoDB Kafka Connect. ")
 		fmt.Println(" - stop: Deletes the Docker compose components completely. ")
 		fmt.Println(" - create: Creates a connector Task based on an input config file path.(json format) ")
 		fmt.Println(" - delete: Deletes all existing Tasks and topics. Infrastructure remains. ")

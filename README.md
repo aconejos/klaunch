@@ -10,14 +10,14 @@ This is a CLI tool to perform MongoDB Kafka connect reproductions.
 
 ##  Commands
 
-- start [connector version]: Creates a Docker compose with all the necesary infrastrusture components.
+- start [connector version]: Creates a Docker compose with all the necessary infrastructure components.
 By default connects to the [release repository](https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/) and download the latest version of MongoDB Kafka Connect.
 
 - stop: Deletes the Docker compose components completely.
 
 - create: Creates a connector/sink Task based on an input config file path.(json format) 
 
-- delete: Deletes all existing Tasks and topics. Infrastructure remains.
+- delete: Deletes all existing Tasks and topics. infrastructure remains.
 
 - show [components - messages]
     - Components: List running Tasks and existing Topics.
