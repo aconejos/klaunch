@@ -1,0 +1,24 @@
+{
+    "name": "mdb-kafka-connector-disable-example",
+    "config": { 
+    "connector.class":"com.mongodb.kafka.connect.MongoSourceConnector",
+    "tasks.max":10,
+    "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/replicaSet=replset",
+    "database":"db_name",
+    "collection":"coll_name",
+    "pipeline":"[{\"$match\":{\"flag\":true}},{\"$project\":{\"eventID\":0}}]",
+    "topic.prefix":"disable",
+    "topic.namespace.map":"{\"namespace\":\"topic_name\"}",
+    "poll.max.batch.size":1000,
+    "poll.await.time.ms":5000,
+    "publish.full.document.only":false,
+    "publish.full.document.only.tombstone.on.delete":false,
+    "change.stream.full.document":"updateLookup",
+    "key.converter" : "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter" : "org.apache.kafka.connect.storage.StringConverter",
+    "output.format.key":"json",
+    "output.format.value":"json",
+    "output.json.formatter":"com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson",
+    "mongo.errors.log.enable":true
+    }
+}
