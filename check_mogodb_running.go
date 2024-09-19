@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -66,7 +66,7 @@ func check_mongodb_running() error {
 	}
 
 	// Read the current hosts file
-	content, err := ioutil.ReadFile("/etc/hosts")
+	content, err := os.ReadFile("/etc/hosts")
 	if err != nil {
 		fmt.Println("Error reading hosts file:", err)
 		return err
@@ -81,7 +81,7 @@ func check_mongodb_running() error {
 		newContent := contentStr + "\n127.0.0.1 host.docker.internal"
 
 		// Write the new content back to the hosts file
-		err = ioutil.WriteFile("/etc/hosts", []byte(newContent), 0644)
+		err = os.WriteFile("/etc/hosts", []byte(newContent), 0644)
 		if err != nil {
 			fmt.Println("Error appending to hosts file:", err)
 			return err
