@@ -14,6 +14,7 @@
     "output.format.value":"json",
     "output.json.formatter":"com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson",
     "change.stream.full.document": "updateLookup",
-    "change.stream.full.document.before.change": "whenAvailable"
+    "change.stream.full.document.before.change": "whenAvailable",
+    "publish.full.document.only":true
     } 
 }
