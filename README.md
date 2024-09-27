@@ -2,6 +2,8 @@
 
 This is a CLI tool to perform MongoDB Kafka connect reproductions.
 
+Currently, this tool is develop and tested on macOS only.
+
 ## Pre requisites
 
 - Docker installed.
