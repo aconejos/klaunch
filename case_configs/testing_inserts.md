@@ -55,3 +55,9 @@ db.orders.insertOne( { 'order_id' : 1, 'item' : 'coffee' } )
              "mongo.errors.log.enable":true
 
       }'`
+
+-- Test connections
+
+"connection.uri": "mongodb+srv://aconejos:aconejos@cluster0.dbvaign.mongodb.net/",
+
+mongosh "mongodb+srv://cluster0.dbvaign.mongodb.net/" --apiVersion 1 --username aconejos

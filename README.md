@@ -7,6 +7,7 @@ Currently, this tool is develop and tested on macOS only.
 ## Pre requisites
 
 - Docker installed.
+Optional:
 - mlaunch installed.
 - 3 node replicased running on localy.
 
