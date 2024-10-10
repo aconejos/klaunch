@@ -10,7 +10,7 @@ Currently, this tool is develop and tested on macOS only.
 
 Optional:
 - mlaunch installed.
-- 3 node replicased running on localy.
+- 3 node replicaset running on localy.
 
 ##  Commands
 
