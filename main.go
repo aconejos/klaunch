@@ -6,175 +6,169 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 func main() {
-
-	// show componentOrMessage value
-	if len(os.Args) < 2 {
-		fmt.Println("Invalid command. Possible commands: start, stop, create, delete, show, logs, help")
-		return
+	var rootCmd = &cobra.Command{
+		Use:   "klaunch",
+		Short: "Klaunch manages Docker services for infrastructure components",
+		Long:  `Klaunch is a CLI tool to manage Docker infrastructure components like starting, stopping, creating, deleting, and showing logs of tasks and topics.`,
 	}
-	// Check for input parameters
-	command := os.Args[1]
-	switch command {
-	case "start":
-		fmt.Println("Starting klaunch...")
 
-		var connectorVersion string
-		if len(os.Args) >= 3 {
-			connectorVersion = os.Args[2]
-		} else {
-			connectorVersion = ""
-		}
+	var startCmd = &cobra.Command{
+		Use:   "start [connectorVersion]",
+		Short: "Starts klaunch with specified connector version",
+		Args:  cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Starting klaunch...")
 
-		mognodbAvailable := check_mongodb_running()
-		if mognodbAvailable != nil {
-			fmt.Println("Error checking for running MongDB:", mognodbAvailable)
-		}
-		// Call functions from check_connector_updates.go
-		updateAvailable := check_connector_updates(connectorVersion)
-		if updateAvailable != nil {
-			fmt.Println("Error checking for connector updates:", updateAvailable)
-		}
-
-		// Spin up docker-compose
-		if updateAvailable == nil {
-			cmd := exec.Command("open", "-a", "Docker")
-			err := cmd.Run()
-			if err != nil {
-				fmt.Println("Error docker daemon not running", err)
+			var connectorVersion string
+			if len(args) >= 1 {
+				connectorVersion = args[0]
 			} else {
-				fmt.Println("Starting docker daemon!")
-				// 	give docker time to start
+				connectorVersion = ""
+			}
+
+			if err := check_mongodb_running(); err != nil {
+				fmt.Println("Error checking for running MongoDB:", err)
+				return
+			}
+
+			if err := check_connector_updates(connectorVersion); err != nil {
+				fmt.Println("Error checking for connector updates:", err)
+				return
+			}
+
+			dockerCmd := exec.Command("open", "-a", "Docker")
+			err := dockerCmd.Run()
+			if err != nil {
+				fmt.Println("Error: Docker daemon not running", err)
+			} else {
+				fmt.Println("Starting Docker daemon!")
 				time.Sleep(3 * time.Second)
 			}
 
-			// Start docker-compose
-			cmd = exec.Command("docker-compose", "-p", "klaunch", "up", "-d")
-			err = cmd.Run()
+			composeCmd := exec.Command("docker-compose", "-p", "klaunch", "up", "-d")
+			err = composeCmd.Run()
 			if err != nil {
 				fmt.Println("Error starting docker-compose:", err)
 			} else {
 				fmt.Println("Klaunch docker-compose started successfully!")
 			}
-		}
-	case "stop":
-		// Call stop function
-		fmt.Println("Stopping klaunch...")
+		},	}
 
-		// list all running containers
-		listContainersCmd := exec.Command("docker-compose", "-p", "klaunch", "ps", "-aq")
+	var stopCmd = &cobra.Command{
+		Use:   "stop",
+		Short: "Stops klaunch and removes all containers",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Stopping klaunch...")
 
-		output, err := listContainersCmd.Output()
-		if err != nil {
-			fmt.Println("Error listing containers:", err)
-			return
-		}
+			listContainersCmd := exec.Command("docker-compose", "-p", "klaunch", "ps", "-aq")
+			output, err := listContainersCmd.Output()
+			if err != nil {
+				fmt.Println("Error listing containers:", err)
+				return
+			}
 
-		containerIDs := strings.Split(string(output), "\n")
-		// remove all the containers
-		for _, id := range containerIDs {
-			if id != "" {
-				// stop the container
-				stopCmd := exec.Command("docker", "rm", "-f", id)
-				err := stopCmd.Run()
-				if err != nil {
-					fmt.Println("Error deleting container:", err)
-					return
+			containerIDs := strings.Split(string(output), "\n")
+			for _, id := range containerIDs {
+				if id != "" {
+					stopCmd := exec.Command("docker", "rm", "-f", id)
+					err := stopCmd.Run()
+					if err != nil {
+						fmt.Println("Error deleting container:", err)
+						return
+					}
 				}
 			}
-		}
-		fmt.Println("Containers removed successfully!")
-	case "create":
-		fmt.Println("Creating new container...")
-		// Call create function
-		err := create_container()
-		if err != nil {
-			fmt.Println("Error creating new topic:", err)
-		} else {
-			fmt.Println("New topic created successfully!")
-		}
-	case "delete":
-		// Call delete function
-		fmt.Println("Deleting containers...")
-		err := delete_connectors()
-		if err != nil {
-			fmt.Println("Error deleting topic:", err)
-		} else {
-			fmt.Println("Containers deleted successfully!")
-		}
-		fmt.Println("Deleting topic...")
-		err = delete_topics()
-		if err != nil {
-			fmt.Println("Error deleting topic:", err)
-		} else {
-			fmt.Println("Topics deleted successfully!")
-		}
-	case "show":
-		if len(os.Args) != 3 {
-			fmt.Println("Invalid show command. Please choose 'components' or 'messages'.")
-			return
-		}
-		componentOrMessage := os.Args[2]
-		//if "components" list_component() if "messages" list_messages()
-		if componentOrMessage == "components" {
-			// Call list function
-			err := list_components()
-			if err != nil {
-				fmt.Println("Error listing components:", err)
-				return
-			}
-		} else if componentOrMessage == "messages" {
-			// Call list function
-			err := list_messages()
-			if err != nil {
-				fmt.Println("Error listing messages:", err)
-				return
-			}
-		} else {
-			fmt.Println("Invalid component or message type. Please choose 'components' or 'messages'.")
-		}
-
-	case "logs":
-		// Call logs function
-		fmt.Println("Extracting logs...")
-		// Get the current date and format it as YYYYMMDD_HHMMSS
-		datePrefix := time.Now().Format("20060102_150405") // Format: YYYYMMDD_HHMMSS
-
-		// Construct the filename with the date prefix
-		filename := fmt.Sprintf("logs/%s_kafka_connect.log", datePrefix)
-
-		// Define the command to get logs from the Docker container
-		cmd := exec.Command("docker", "logs", "kafka-connect")
-
-		// Execute the command and capture the output
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Printf("Failed to execute command: %v\nOutput: %s\n", err, string(output))
-			return
-		}
-
-		// Write the output to a file
-		err = os.WriteFile(filename, output, 0644)
-		if err != nil {
-			fmt.Printf("Failed to write to file: %v\n", err)
-			return
-		}
-
-		fmt.Printf("Logs saved to %s\n", filename)
-	case "help":
-		fmt.Println(" - start [connector version]: Creates a Docker compose with all the necessary infrastructure components. By default will connect to the release repository and download the latest version of MongoDB Kafka Connect. ")
-		fmt.Println(" - stop: Deletes the Docker compose components completely. ")
-		fmt.Println(" - create: Creates a connector Task based on an input config file path.(json format) ")
-		fmt.Println(" - delete: Deletes all existing Tasks and topics. Infrastructure remains. ")
-		fmt.Println(" - show [components - messages] ")
-		fmt.Println("      Components: will list running Tasks and existing Topics. ")
-		fmt.Println("      Messages: will list existing Topics and will create a consumer process to display messages on the console. ")
-		fmt.Println(" - logs: Will dump a the Kafka connect log file into $repository/logs path with the following format: $timestamps_kadka_connect.log ")
-
-	default:
-		fmt.Println("Invalid command. Possible commands: start, stop, create, delete, show, logs, help")
+			fmt.Println("Containers removed successfully!")
+		},
 	}
 
+	var createCmd = &cobra.Command{
+		Use:   "create",
+		Short: "Creates a new container",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Creating new container...")
+			if err := create_container(); err != nil {
+				fmt.Println("Error creating new topic:", err)
+			} else {
+				fmt.Println("New topic created successfully!")
+			}
+		},
+	}
+
+	var deleteCmd = &cobra.Command{
+		Use:   "delete",
+		Short: "Deletes all containers and topics",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Deleting containers...")
+			if err := delete_connectors(); err != nil {
+				fmt.Println("Error deleting connectors:", err)
+			} else {
+				fmt.Println("Containers deleted successfully!")
+			}
+
+			fmt.Println("Deleting topics...")
+			if err := delete_topics(); err != nil {
+				fmt.Println("Error deleting topics:", err)
+			} else {
+				fmt.Println("Topics deleted successfully!")
+			}
+		},
+	}
+
+	var showCmd = &cobra.Command{
+		Use:   "show [components|messages]",
+		Short: "Shows components or messages",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			componentOrMessage := args[0]
+			if componentOrMessage == "components" {
+				if err := list_components(); err != nil {
+					fmt.Println("Error listing components:", err)
+				}
+			} else if componentOrMessage == "messages" {
+				if err := list_messages(); err != nil {
+					fmt.Println("Error listing messages:", err)
+				}
+			} else {
+				fmt.Println("Invalid component or message type. Please choose 'components' or 'messages'.")
+			}
+		},
+	}
+
+	var logsCmd = &cobra.Command{
+		Use:   "logs",
+		Short: "Extracts logs from Kafka Connect",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Extracting logs...")
+			datePrefix := time.Now().Format("20060102_150405")
+			filename := fmt.Sprintf("logs/%s_kafka_connect.log", datePrefix)
+
+			dockerCmd := exec.Command("docker", "logs", "kafka-connect")
+			output, err := dockerCmd.CombinedOutput()
+			if err != nil {
+				fmt.Printf("Failed to execute command: %v\nOutput: %s\n", err, string(output))
+				return
+			}
+
+			err = os.WriteFile(filename, output, 0644)
+			if err != nil {
+				fmt.Printf("Failed to write to file: %v\n", err)
+				return
+			}
+
+			fmt.Printf("Logs saved to %s\n", filename)
+		},
+	}
+
+	rootCmd.AddCommand(startCmd, stopCmd, createCmd, deleteCmd, showCmd, logsCmd)
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
