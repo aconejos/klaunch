@@ -89,13 +89,13 @@ func main() {
 
 	var createCmd = &cobra.Command{
 		Use:   "create",
-		Short: "Creates a new container",
+		Short: "Creates a new Kafka task",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Creating new container...")
-			if err := create_container(); err != nil {
-				fmt.Println("Error creating new topic:", err)
+			fmt.Println("Creating new Kafka task...")
+			if err := create_kafka_task(); err != nil {
+				fmt.Println("Error creating new task:", err)
 			} else {
-				fmt.Println("New topic created successfully!")
+				fmt.Println("New task created successfully!")
 			}
 		},
 	}

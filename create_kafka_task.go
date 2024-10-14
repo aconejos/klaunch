@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func create_container() error {
+func create_kafka_task() error {
 	url := "http://localhost:8083/connectors"
 
 	fmt.Println("Enter the path to the configuration file: ")
@@ -47,7 +47,7 @@ func create_container() error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("failed to create topic: %s", resp.Status)
+		return fmt.Errorf("failed to create task: %s", resp.Status)
 	}
 
 	return nil
