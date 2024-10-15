@@ -43,6 +43,16 @@ By default connects to the [release repository](https://repo1.maven.org/maven2/o
 ![Diagram](./diagram.png)
 ---------------------------------
 
+### CMAK configuration
+
+- `http://localhost:9000/addCluster` CMAK is configured to connect to the Kafka cluster using the following properties as showed on the image below:
+```
+cluster name: kafka-connect
+Cluster Zookeeper Hosts: zookeeper1
+```
+
+![CMAK](./diagram2.png)
+
 
 ### Disclaimer
 
