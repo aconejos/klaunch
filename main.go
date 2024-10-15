@@ -53,7 +53,13 @@ func main() {
 			composeCmd := exec.Command("docker-compose", "-p", "klaunch", "up", "-d")
 			err = composeCmd.Run()
 			if err != nil {
-				fmt.Println("Error starting docker-compose:", err)
+				composeCmd = exec.Command("docker", "compose", "-p", "klaunch", "up", "-d")
+				err = composeCmd.Run()
+				if err != nil {
+					fmt.Println("Error starting docker compose:", err)
+				} else {
+					fmt.Println("Klaunch docker compose started successfully!")	
+				}
 			} else {
 				fmt.Println("Klaunch docker-compose started successfully!")
 			}
@@ -68,8 +74,11 @@ func main() {
 			listContainersCmd := exec.Command("docker-compose", "-p", "klaunch", "ps", "-aq")
 			output, err := listContainersCmd.Output()
 			if err != nil {
-				fmt.Println("Error listing containers:", err)
-				return
+				listContainersCmd = exec.Command("docker", "compose", "-p", "klaunch", "ps", "-aq")
+				err = listContainersCmd.Run()
+				if err != nil {
+					fmt.Println("Error listing container:", err)
+				} 
 			}
 
 			containerIDs := strings.Split(string(output), "\n")
