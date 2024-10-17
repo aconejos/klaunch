@@ -12,6 +12,20 @@ Optional:
 - mlaunch installed.
 - 3 node replicaset running on localy.
 
+### Building on Linux
+
+This repository provides the `klaunch_linux` binary which was build on an Ubuntu 24.04 machine.
+
+If you want to build manually on a Ubuntu/Debian-based machine, please follow these steps:
+
+```
+sudo apt install golang-go
+cd klaunch
+go build
+```
+
+Steps may vary on other distributions install process like `sudo dnf install golang` or `sudo pacman -S go` but usually installing the standard Go compiled, linked and stdlib is enough.
+
 ##  Commands
 
 - start [connector version]: Creates a Docker compose with all the necessary infrastructure components.
