@@ -33,7 +33,7 @@ func main() {
 
 			if err := check_mongodb_running(); err != nil {
 				fmt.Println("Error checking for running MongoDB:", err)
-				return
+				fmt.Println("\nDISREGARD in case you are using Atlas as source or destination")
 			}
 
 			if err := check_connector_updates(connectorVersion); err != nil {
