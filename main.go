@@ -38,7 +38,7 @@ func main() {
 
 			if err := check_connector_updates(connectorVersion); err != nil {
 				fmt.Println("Error checking for connector updates:", err)
-				return
+				fmt.Println("\nValidate available network Connection")
 			}
 
 			dockerCmd := exec.Command("open", "-a", "Docker")
@@ -50,6 +50,7 @@ func main() {
 				time.Sleep(3 * time.Second)
 			}
 
+			fmt.Println("Cheking to pull docker images...")
 			composeCmd := exec.Command("docker-compose", "-p", "klaunch", "up", "-d")
 			err = composeCmd.Run()
 			if err != nil {
