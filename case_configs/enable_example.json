@@ -6,7 +6,7 @@
     "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/replicaSet=replset",
     "database":"mdb_kafka_test",
     "collection":"connector_test_filter",
-    "pipeline":"[{\"$match\":{\"location\":Barcelona}},{\"$project\":{\"eventID\":1}}]",
+    "pipeline":"[{\"$match\":{\"fullDocument.location\":\"Barcelona\"}},{\"$project\":{\"fullDocument.eventID\":1, \"ns\":1}}]",
     "topic.prefix":"enable",
     "topic.namespace.map":"{\"namespace\":\"topic_name\"}",
     "poll.max.batch.size":1000,

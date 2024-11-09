@@ -1,0 +1,16 @@
+{
+    "name": "mdb-kafka-sink-task",
+    "config": {
+    "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+    "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/?replicaSet=replset",
+    "database": "sink_db_test",
+    "collection": "sink_collection_test",
+    "tasks.max": "1",
+    "poll.max.batch.size": "1000",
+    "poll.await.time.ms": "5000",
+    "topics":"source_db_test.source_collection_test",
+    "writemodel.strategy":"com.mongodb.kafka.connect.sink.writemodel.strategy.UpdateOneDefaultStrategy",
+    "document.id.strategy":"com.mongodb.kafka.connect.sink.processor.id.strategy.BsonOidStrategy",
+    "change.data.capture.handler": "com.mongodb.kafka.connect.sink.cdc.mongodb.ChangeStreamHandler"
+    } 
+}
