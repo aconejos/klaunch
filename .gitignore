@@ -6,3 +6,9 @@ to.do
 logs/*
 .DS_Store
 volumes/*
+coverag*/*
+*.log
+*.tmp
+*.bak
+*.swp
+*.pid

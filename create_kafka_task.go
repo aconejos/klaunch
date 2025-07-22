@@ -5,20 +5,60 @@ import (
 	"fmt"
 	"os"
 	"net/http"
+	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 func create_kafka_task() error {
 	url := "http://localhost:8083/connectors"
 
-	fmt.Println("Enter the path to the configuration file: ")
+	// Get available config files
+	configFiles, err := getConfigFiles()
+	if err != nil {
+		fmt.Println("Error reading config files:", err)
+		return err
+	}
+
 	var filePath string
-	fmt.Scanln(&filePath)
+	if len(configFiles) == 0 {
+		fmt.Println("No configuration files found in case_configs directory")
+		fmt.Println("Enter the path to the configuration file: ")
+		fmt.Scanln(&filePath)
+	} else {
+		// Display available config files
+		fmt.Println("Available configuration files:")
+		for i, file := range configFiles {
+			fmt.Printf("%d. %s\n", i+1, file)
+		}
+		fmt.Printf("%d. Select custom path or press Enter for default\n", len(configFiles)+1)
+		fmt.Printf("\nSelect a configuration file (1-%d): ", len(configFiles)+1)
+		
+		var choice string
+		fmt.Scanln(&choice)
+		
+		choiceNum, err := strconv.Atoi(choice)
+		if err != nil || choiceNum < 1 || choiceNum > len(configFiles)+1 {
+			fmt.Println("Invalid choice. Using default configuration.")
+			filePath = "./case_configs/default_topic.json"
+		} else if choiceNum == len(configFiles)+1 {
+			// Custom path option
+			fmt.Println("Enter the path to the configuration file: ")
+			fmt.Scanln(&filePath)
+		} else {
+			// Selected from available files
+			filePath = filepath.Join("./case_configs", configFiles[choiceNum-1])
+		}
+	}
+
 	// if no file path is provided use "case_configs/default_topic.json" as default
 	if filePath == "" {
 		filePath = "./case_configs/default_topic.json"
 		fmt.Println("Taking the default configuration file case_configs/default_topic.json")
 	}
 
+	fmt.Printf("Selected configuration file: %s\n", filePath)
+	
 	file, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Println("Error reading file:", err)
@@ -51,4 +91,21 @@ func create_kafka_task() error {
 	}
 
 	return nil
+}
+
+func getConfigFiles() ([]string, error) {
+	configDir := "./case_configs"
+	files, err := os.ReadDir(configDir)
+	if err != nil {
+		return nil, err
+	}
+
+	var configFiles []string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".json") {
+			configFiles = append(configFiles, file.Name())
+		}
+	}
+
+	return configFiles, nil
 }
