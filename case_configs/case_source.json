@@ -1,0 +1,28 @@
+{
+    "name": "Magellan.MagellanQueryData.Source",
+    "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "config.action.reload": "restart",
+    "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/?replicaSet=replset",
+    "database": "dpidatamagellan",
+    "collection": "magellan_query_data",
+    "publish.full.document.only": "false",
+    "publish.full.document.only.tombstone.on.delete": "false",
+    "change.stream.full.document": "updateLookup",
+    "output.format.key": "json",
+    "output.format.value": "json",
+    "output.schema.infer.value": "false",
+    "startup.mode": "copy_existing",
+    "startup.mode.copy.existing.allow.disk.use": "true",
+    "producer.override.max.request.size": "16777216",
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false",
+    "poll.max.batch.size": "10",
+    "startup.mode.copy.existing.queue.size": "10"
+    }
+ }
+
+
+ 

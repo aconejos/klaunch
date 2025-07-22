@@ -5,3 +5,4 @@ to.do
 .vscode
 logs/*
 .DS_Store
+volumes/*

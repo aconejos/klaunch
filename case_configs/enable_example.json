@@ -20,5 +20,5 @@
     "output.format.value":"json",
     "output.json.formatter":"com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson",
     "mongo.errors.log.enable":true
-    }
+    }   
 }

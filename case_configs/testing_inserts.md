@@ -1,6 +1,8 @@
 -- Deploy connector 
 curl -s -X POST -H 'Content-Type: application/json' --data @./case_configs/default_topic.json http://localhost:8083/connectors
 
+curl -s -X GET http://localhost:8083/connectors \
+-H 'Content-Type: application/json' 
 
 -- Delete connector
 curl -X DELETE  http://localhost:8083/connectors/mdb-kafka-connector-default
