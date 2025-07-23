@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-
 func delete_connectors() error {
 	connectorsList, err := list_connectors()
 	if err != nil {
@@ -19,7 +18,7 @@ func delete_connectors() error {
 
 	// break the content of cleanConnectorList into a slide of strings
 	connectorList := strings.Split(cleanConnectorList, ",")
-	
+
 	for _, connector := range connectorList {
 		// curl DELETE  http://localhost:8083/connectors/mdb-kafka-connector-default
 		url := "http://localhost:8083/connectors/"
@@ -27,7 +26,7 @@ func delete_connectors() error {
 		// remove double quotes from connector name
 		connector = strings.Trim(connector, "\"")
 		if connector == "" {
-			return nil	
+			return nil
 		}
 		// concat url value with connector name
 		url = url + connector

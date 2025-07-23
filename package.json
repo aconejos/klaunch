@@ -1,0 +1,26 @@
+{
+  "name": "klaunch-test-data-inserter",
+  "version": "1.0.0",
+  "description": "Node.js script to insert test data into MongoDB for Kafka connector testing",
+  "main": "insert_test_data.js",
+  "scripts": {
+    "insert": "node insert_test_data.js",
+    "insert:multiple": "node insert_test_data.js --count 10 --interval 1000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mongodb",
+    "kafka",
+    "test-data",
+    "connector"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "^6.18.0",
+    "uuid": "^9.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

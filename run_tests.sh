@@ -16,6 +16,8 @@ NC='\033[0m' # No Color
 TEST_TIMEOUT="10m"
 COVERAGE_DIR="coverage"
 TEST_RESULTS_DIR="test-results"
+CONTINUE_ON_FAILURE=false
+FAILED_TESTS=""
 
 # Function to print colored output
 print_status() {
@@ -32,6 +34,23 @@ print_warning() {
 
 print_error() {
     echo -e "${RED}[FAIL]${NC} $1"
+}
+
+# Function to handle test failures consistently
+handle_test_failure() {
+    local test_name="$1"
+    local error_message="$2"
+    
+    print_error "$error_message"
+    
+    if [ "$CONTINUE_ON_FAILURE" = "true" ]; then
+        FAILED_TESTS="$FAILED_TESTS $test_name"
+        print_warning "Continuing due to --continue flag"
+        return 0
+    else
+        print_error "Stopping execution due to test failure"
+        exit 1
+    fi
 }
 
 # Function to check prerequisites
@@ -94,7 +113,7 @@ run_unit_tests() {
     print_status "Running unit tests..."
     
     local UNIT_TEST_PACKAGES=(
-        "./test"
+        "."
     )
     
     # Run tests with coverage
@@ -110,7 +129,7 @@ run_unit_tests() {
         if [ $? -eq 0 ]; then
             print_success "Unit tests passed for package: $package"
         else
-            print_error "Unit tests failed for package: $package"
+            handle_test_failure "unit-tests" "Unit tests failed for package: $package"
             return 1
         fi
     done
@@ -133,12 +152,12 @@ run_test_category() {
         -run "$pattern" \
         -coverprofile="$COVERAGE_DIR/${category}_coverage.out" \
         -covermode=atomic \
-        ./test | tee "$TEST_RESULTS_DIR/${category}_tests.log"
+        . | tee "$TEST_RESULTS_DIR/${category}_tests.log"
     
     if [ $? -eq 0 ]; then
         print_success "$category tests passed"
     else
-        print_error "$category tests failed"
+        handle_test_failure "$category" "$category tests failed"
         return 1
     fi
 }
@@ -151,7 +170,7 @@ run_integration_tests() {
     go build -o klaunch-integration-test
     
     if [ $? -ne 0 ]; then
-        print_error "Failed to build integration test binary"
+        handle_test_failure "integration" "Failed to build integration test binary"
         return 1
     fi
     
@@ -160,7 +179,7 @@ run_integration_tests() {
         -tags=integration \
         -coverprofile="$COVERAGE_DIR/integration_coverage.out" \
         -covermode=atomic \
-        ./test | tee "$TEST_RESULTS_DIR/integration_tests.log"
+        . | tee "$TEST_RESULTS_DIR/integration_tests.log"
     
     local exit_code=$?
     
@@ -170,7 +189,7 @@ run_integration_tests() {
     if [ $exit_code -eq 0 ]; then
         print_success "Integration tests passed"
     else
-        print_error "Integration tests failed"
+        handle_test_failure "integration" "Integration tests failed"
         return 1
     fi
 }
@@ -188,12 +207,13 @@ run_infrastructure_tests() {
         -run "TestInfrastructure|TestDocker|TestPort|TestNetwork" \
         -coverprofile="$COVERAGE_DIR/infrastructure_coverage.out" \
         -covermode=atomic \
-        ./test | tee "$TEST_RESULTS_DIR/infrastructure_tests.log"
+        . | tee "$TEST_RESULTS_DIR/infrastructure_tests.log"
     
     if [ $? -eq 0 ]; then
         print_success "Infrastructure tests passed"
     else
-        print_warning "Infrastructure tests failed (services may not be running)"
+        handle_test_failure "infrastructure" "Infrastructure tests failed (services may not be running)"
+        return 1
     fi
 }
 
@@ -206,12 +226,13 @@ run_benchmarks() {
         -benchmem \
         -cpuprofile="$TEST_RESULTS_DIR/cpu.prof" \
         -memprofile="$TEST_RESULTS_DIR/mem.prof" \
-        ./test | tee "$TEST_RESULTS_DIR/benchmarks.log"
+        . | tee "$TEST_RESULTS_DIR/benchmarks.log"
     
     if [ $? -eq 0 ]; then
         print_success "Benchmarks completed"
     else
-        print_warning "Some benchmarks failed"
+        handle_test_failure "benchmarks" "Some benchmarks failed"
+        return 1
     fi
 }
 
@@ -221,13 +242,13 @@ run_static_analysis() {
     
     # Format check
     if ! go fmt ./...; then
-        print_error "Code formatting issues found"
+        handle_test_failure "static-analysis" "Code formatting issues found"
         return 1
     fi
     
     # Vet check
     if ! go vet ./...; then
-        print_error "Go vet found issues"
+        handle_test_failure "static-analysis" "Go vet found issues"
         return 1
     fi
     
@@ -270,8 +291,16 @@ EOF
     for log_file in "$TEST_RESULTS_DIR"/*.log; do
         if [ -f "$log_file" ]; then
             local test_name=$(basename "$log_file" .log)
-            local test_passed=$(grep -c "PASS" "$log_file" || echo "0")
-            local test_failed=$(grep -c "FAIL" "$log_file" || echo "0")
+            local test_passed=$(grep -c "PASS" "$log_file" 2>/dev/null || echo "0")
+            local test_failed=$(grep -c "FAIL" "$log_file" 2>/dev/null || echo "0")
+            
+            # Ensure variables are numeric
+            test_passed=${test_passed:-0}
+            test_failed=${test_failed:-0}
+            
+            # Additional validation to ensure they're numbers
+            [[ "$test_passed" =~ ^[0-9]+$ ]] || test_passed=0
+            [[ "$test_failed" =~ ^[0-9]+$ ]] || test_failed=0
             
             echo "### $test_name" >> "$report_file"
             echo "- Passed: $test_passed" >> "$report_file"
@@ -316,20 +345,80 @@ cleanup_test_environment() {
     print_success "Cleanup completed"
 }
 
+# Function to parse command line arguments
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --continue)
+                CONTINUE_ON_FAILURE=true
+                shift
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            *)
+                if [[ -z "$TEST_TYPE" ]]; then
+                    TEST_TYPE="$1"
+                else
+                    print_error "Unknown argument: $1"
+                    show_help
+                    exit 1
+                fi
+                shift
+                ;;
+        esac
+    done
+    
+    TEST_TYPE="${TEST_TYPE:-all}"
+}
+
+# Function to show help
+show_help() {
+    cat << EOF
+Usage: $0 [OPTIONS] [TEST_TYPE]
+
+Test Types:
+    unit            Run unit tests only
+    integration     Run integration tests only  
+    infrastructure  Run infrastructure tests only
+    benchmarks      Run performance benchmarks only
+    static          Run static analysis only
+    all             Run all tests (default)
+
+Options:
+    --continue      Continue running tests even if some fail
+    -h, --help      Show this help message
+
+Examples:
+    $0                          # Run all tests, stop on first failure
+    $0 --continue all           # Run all tests, continue on failures
+    $0 unit                     # Run only unit tests
+    $0 --continue infrastructure # Run infrastructure tests, continue on failure
+EOF
+}
+
 # Main execution function
 main() {
-    local test_type="${1:-all}"
     local start_time=$(date +%s)
     
+    # Parse command line arguments
+    parse_args "$@"
+    
     print_status "Starting Klaunch test suite..."
-    print_status "Test type: $test_type"
+    print_status "Test type: $TEST_TYPE"
+    if [ "$CONTINUE_ON_FAILURE" = "true" ]; then
+        print_status "Mode: Continue on failure"
+    else
+        print_status "Mode: Stop on first failure"
+    fi
     
     # Always run prerequisites and setup
     check_prerequisites
     setup_test_environment
     
     # Run tests based on type
-    case "$test_type" in
+    case "$TEST_TYPE" in
         "unit")
             run_unit_tests
             ;;
@@ -346,15 +435,15 @@ main() {
             run_static_analysis
             ;;
         "all")
-            run_static_analysis || print_warning "Static analysis had issues"
-            run_unit_tests || { print_error "Unit tests failed"; exit 1; }
-            run_integration_tests || print_warning "Integration tests had issues"
-            run_infrastructure_tests || print_warning "Infrastructure tests had issues"
-            run_benchmarks || print_warning "Benchmarks had issues"
+            run_static_analysis
+            run_unit_tests
+            run_integration_tests
+            run_infrastructure_tests  
+            run_benchmarks
             ;;
         *)
-            print_error "Unknown test type: $test_type"
-            echo "Usage: $0 [unit|integration|infrastructure|benchmarks|static|all]"
+            print_error "Unknown test type: $TEST_TYPE"
+            show_help
             exit 1
             ;;
     esac
@@ -366,7 +455,14 @@ main() {
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
     
-    print_success "Test suite completed in ${duration}s"
+    # Check if we had failures in continue mode
+    if [ "$CONTINUE_ON_FAILURE" = "true" ] && [ -n "$FAILED_TESTS" ]; then
+        print_error "Test suite completed with failures in: $FAILED_TESTS"
+        print_error "Total duration: ${duration}s"
+        exit 1
+    else
+        print_success "Test suite completed in ${duration}s"
+    fi
 }
 
 # Script execution

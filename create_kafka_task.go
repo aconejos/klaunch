@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -33,10 +33,10 @@ func create_kafka_task() error {
 		}
 		fmt.Printf("%d. Select custom path or press Enter for default\n", len(configFiles)+1)
 		fmt.Printf("\nSelect a configuration file (1-%d): ", len(configFiles)+1)
-		
+
 		var choice string
 		fmt.Scanln(&choice)
-		
+
 		choiceNum, err := strconv.Atoi(choice)
 		if err != nil || choiceNum < 1 || choiceNum > len(configFiles)+1 {
 			fmt.Println("Invalid choice. Using default configuration.")
@@ -58,7 +58,7 @@ func create_kafka_task() error {
 	}
 
 	fmt.Printf("Selected configuration file: %s\n", filePath)
-	
+
 	file, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Println("Error reading file:", err)

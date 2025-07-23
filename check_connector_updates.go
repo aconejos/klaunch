@@ -63,8 +63,8 @@ func check_connector_updates(inputVersion string) error {
 	envContent, _ := os.ReadFile(envFile)
 	re = regexp.MustCompile(`MONGO_KAFKA_CONNECT_VERSION=(.+)`)
 	match := re.FindStringSubmatch(string(envContent))
-	
-	// show match value 
+
+	// show match value
 	//fmt.Printf("MONGO_KAFKA_CONNECT_VERSION=%s\n", match[1])
 	//fmt.Printf("I will updated to this =%s\n", latestVersion)
 

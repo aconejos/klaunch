@@ -59,12 +59,12 @@ func main() {
 				if err != nil {
 					fmt.Println("Error starting docker compose:", err)
 				} else {
-					fmt.Println("Klaunch docker compose started successfully!")	
+					fmt.Println("Klaunch docker compose started successfully!")
 				}
 			} else {
 				fmt.Println("Klaunch docker-compose started successfully!")
 			}
-		},	}
+		}}
 
 	var stopCmd = &cobra.Command{
 		Use:   "stop",
@@ -79,7 +79,7 @@ func main() {
 				err = listContainersCmd.Run()
 				if err != nil {
 					fmt.Println("Error listing container:", err)
-				} 
+				}
 			}
 
 			containerIDs := strings.Split(string(output), "\n")
