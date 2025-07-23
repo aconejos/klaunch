@@ -70,11 +70,6 @@ func list_topics() ([]string, error) {
 		return nil, nil
 	}
 
-	fmt.Println("List of topics:")
-
-	for _, topic := range topics {
-		fmt.Println(topic)
-	}
 	return topics, nil
 }
 

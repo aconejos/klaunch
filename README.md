@@ -69,6 +69,74 @@ Cluster Zookeeper Hosts: zookeeper1
 ![CMAK](./diagram2.png)
 
 
+## Release Process
+
+### Creating a New Release
+
+To create a new release version of Klaunch:
+
+1. **Update Version and Create Release Commit**
+   ```bash
+   # Make your changes and commit them
+   git add .
+   git commit -m "feat: Your feature description"
+   
+   # Create release commit
+   git commit --allow-empty -m "Release vX.Y.Z - Brief description of changes"
+   ```
+
+2. **Create and Push Git Tag**
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git push origin main
+   git push origin vX.Y.Z
+   ```
+
+3. **Build Distribution Artifacts**
+   ```bash
+   # Checkout the release tag
+   git checkout vX.Y.Z
+   
+   # Build distribution packages
+   make dist
+   ```
+   
+   **Note**: Linux builds require CGO for Kafka dependencies and cannot be cross-compiled from macOS. Build on Linux system:
+   ```bash
+   # On Linux system:
+   make build-linux
+   tar -czf dist/klaunch-vX.Y.Z-linux-amd64.tar.gz -C build klaunch_linux
+   ```
+
+4. **Create GitHub Release (if gh CLI available)**
+   ```bash
+   gh release create vX.Y.Z \
+     --title "Release vX.Y.Z" \
+     --notes "Description of changes" \
+     --verify-tag \
+     dist/klaunch-vX.Y.Z-darwin-amd64.tar.gz
+   ```
+
+5. **Create Next Development Branch**
+   ```bash
+   git checkout main
+   git checkout -b vX.Y.(Z+1)
+   git push origin vX.Y.(Z+1)
+   ```
+
+### Available Make Targets for Releases
+
+- `make release` - Build optimized release binary for current platform
+- `make build-linux` - Cross-compile for Linux (may fail due to CGO dependencies)
+- `make dist` - Create distribution packages for both platforms
+- `make info` - Display current version and build information
+
+### Distribution Artifacts
+
+Release artifacts are created in the `dist/` directory:
+- `klaunch-vX.Y.Z-darwin-amd64.tar.gz` - macOS binary
+- `klaunch-vX.Y.Z-linux-amd64.tar.gz` - Linux binary (if built on Linux)
+
 ### Disclaimer
 
 > This project uses code from other sources.
