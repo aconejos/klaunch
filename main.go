@@ -135,9 +135,10 @@ func main() {
 		Short: "Shows components or messages",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			verbose, _ := cmd.Flags().GetBool("verbose")
 			componentOrMessage := args[0]
 			if componentOrMessage == "components" {
-				if err := list_components(); err != nil {
+				if err := list_components(verbose); err != nil {
 					fmt.Println("Error listing components:", err)
 				}
 			} else if componentOrMessage == "messages" {
@@ -149,6 +150,8 @@ func main() {
 			}
 		},
 	}
+	
+	showCmd.Flags().Bool("verbose", false, "Show full stack traces for failed tasks")
 
 	var logsCmd = &cobra.Command{
 		Use:   "logs",

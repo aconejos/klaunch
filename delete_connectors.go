@@ -7,7 +7,7 @@ import (
 )
 
 func delete_connectors() error {
-	connectorsList, err := list_connectors()
+	connectorsList, err := list_connectors(false)
 	if err != nil {
 		fmt.Println("Error listing connectors:", err)
 		return err

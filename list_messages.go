@@ -18,10 +18,9 @@ func list_messages() error {
 	}
 
 	var topicName string
-	if availableTopics == nil || len(availableTopics) == 0 {
-		fmt.Println("No topics found. Please enter a topic name manually:")
-		fmt.Print("Topic name: ")
-		fmt.Scanln(&topicName)
+	if len(availableTopics) == 0 {
+		fmt.Println("No topics found.")	
+		return nil
 	} else {
 		// Display available topics with menu
 		fmt.Println("\nAvailable topics:")
@@ -94,7 +93,7 @@ func list_messages() error {
 
 	run := true
 
-	for run == true {
+	for run {
 		select {
 		case sig := <-sigchan:
 			fmt.Printf("Caught signal %v: terminating\n", sig)
@@ -123,8 +122,8 @@ func list_messages() error {
 					fmt.Printf("Key: %s\n", string(e.Key))
 				}
 				fmt.Printf("Value: %s\n", string(e.Value))
-				if e.Timestamp.IsZero() == false {
-					fmt.Printf("Timestamp: %v\n", e.Timestamp)
+				if !e.Timestamp.IsZero() {
+					fmt.Printf("Even_Timestamp: %v\n", e.Timestamp)
 				}
 				fmt.Println("---")
 			case kafka.PartitionEOF:
