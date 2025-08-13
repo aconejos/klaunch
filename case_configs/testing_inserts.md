@@ -32,6 +32,13 @@ use Tutorial1
 db.orders.insertOne( { 'order_id' : 1, 'item' : 'coffee' } )
 
 
+db.collectionName.insertOne({  
+  id: UUID(),                          // Generate a new UUID  
+  type: "your_type_value",             // Replace with your desired type  
+  value: "your_value",                 // Replace with your desired value  
+  location: "Barcelona",               // Fixed to 'Barcelona'  
+  createdAt: new Date()                // Automatically set to the current timestamp  
+}); 
 
 
 `curl -i -X PUT -H "Content-Type: application/json" \http://localhost:8083/connectors/connector_name1/config \-d '{

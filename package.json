@@ -17,6 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "kafkajs": "^2.2.4",
     "mongodb": "^6.18.0",
     "uuid": "^9.0.1"
   },

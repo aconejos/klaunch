@@ -1,0 +1,26 @@
+{
+"name": "SAMPLE_TOPIC.uat-v1",
+"config": {
+"connector.class": "com.mongodb.kafka.connect.MongoSourceConnector",
+"producer.override.compression.type": "snappy",
+"tasks.max": "1",
+"output.format.value": "json",
+"batch.size": "0",
+"change.stream.full.document": "updateLookup",
+"collection": "uat-v5",
+"output.format.key": "json",
+"pipeline": "[{\"$addFields\": {\"clusterTimestamp\": {\"$toDate\": \"$clusterTime\"}}}]",
+"mongo.errors.tolerance": "all",
+"database": "DemoDB",
+"topic.prefix": "SAMPLE_TOPIC",
+"output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson",
+"producer.override.max.request.size": "15728640",
+"poll.await.time.ms": "5000",
+"connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/?replicaSet=replset",
+"name": "SAMPLE_TOPIC.uat-v1",
+"change.stream.full.document.before.change": "required",
+"value.converter": "org.apache.kafka.connect.storage.StringConverter",
+"key.converter": "org.apache.kafka.connect.storage.StringConverter",
+"poll.max.batch.size": "1000"
+}
+}
