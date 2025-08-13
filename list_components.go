@@ -87,7 +87,7 @@ func format_task_output(name string, tasks []TaskStatus, verbose bool) {
 					fmt.Printf("│       └── %s", errorMsg)
 				} else {
 					fmt.Printf("│       └── Error: %s\n", errorMsg)
-					fmt.Printf("│       └── Use './klaunch show --verbose' for full stack trace\n")
+					fmt.Printf("│       └── Use './klaunch show components --verbose' for full stack trace\n")
 				}
 			}
 		}
