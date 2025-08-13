@@ -11,9 +11,11 @@
     "topics":"source_db_test.source_collection_test",
     "writemodel.strategy":"com.mongodb.kafka.connect.sink.writemodel.strategy.UpdateOneDefaultStrategy",
     "document.id.strategy":"com.mongodb.kafka.connect.sink.processor.id.strategy.BsonOidStrategy",
-    "change.data.capture.handler": "com.mongodb.kafka.connect.sink.cdc.mongodb.ChangeStreamHandler",
-    "transforms": "maskEmail",
-    "transforms.maskEmail.type": "org.apache.kafka.connect.transforms.ReplaceField$Value",
-    "transforms.maskEmail.exclude": "fullDocument.email,fullDocument.contact_email,fullDocument.user_email"
+    "transforms": "extractDocument,maskEmail",
+    "transforms.extractDocument.type": "org.apache.kafka.connect.transforms.ExtractField$Value",
+    "transforms.extractDocument.field": "fullDocument",
+    "transforms.maskEmail.type": "org.apache.kafka.connect.transforms.MaskField$Value",
+    "transforms.maskEmail.fields": "email,contact_email,user_email",
+    "transforms.maskEmail.replacement": "***MASKED***"
     } 
 }

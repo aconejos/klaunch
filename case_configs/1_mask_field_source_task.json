@@ -9,6 +9,9 @@
     "poll.max.batch.size": "1000",
     "poll.await.time.ms": "5000",
     "change.stream.full.document": "updateLookup",
-    "change.stream.full.document.before.change": "whenAvailable"
+    "change.stream.full.document.before.change": "whenAvailable",
+    "publish.full.document.only": "false",
+    "output.format.value": "schema",
+    "output.schema.infer.value": "true"
     } 
 }
