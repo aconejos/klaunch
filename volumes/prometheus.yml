@@ -18,8 +18,8 @@ scrape_configs:
     static_configs:
       - targets:
           - kafka1:8091
-          - kafka2:8091
-          - kafka3:8091
+          - kafka2:8092
+          - kafka3:8093
 
   - job_name: 'zookeeper'
 
