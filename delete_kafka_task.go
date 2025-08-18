@@ -42,7 +42,9 @@ func delete_tasks_interactive(interactive bool) error {
 		}
 
 		if input == "all" || input == strconv.Itoa(len(connectorNames)+1) {
-			connectorsToDelete = connectorNames
+			// Delete all connectors and all topics
+			fmt.Println("Deleting ALL connectors and ALL topics...")
+			return delete_all_tasks()
 		} else {
 			// Parse individual selections
 			selections := strings.Split(input, ",")
@@ -149,6 +151,11 @@ func delete_topics() error {
 	if err != nil {
 		fmt.Println("Error listing topics:", err)
 		return err
+	}
+
+	if len(topicList) == 0 {
+		fmt.Println("No user topics found to delete.")
+		return nil
 	}
 
 	for _, topic := range topicList {

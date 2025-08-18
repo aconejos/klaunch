@@ -32,13 +32,21 @@ func list_messages() error {
 		var choice string
 		fmt.Scanln(&choice)
 
+		//// Handle empty input - default to 1 if only one topic available
+		//if choice == "" && len(availableTopics) == 1 {
+		//	choice = "1"
+		//}
+
 		choiceNum, err := strconv.Atoi(choice)
-		if err != nil || choiceNum < 1 || choiceNum > len(availableTopics) {
-			return fmt.Errorf("invalid choice: please select a number between 1 and %d", len(availableTopics))
-		} else {
-			// Selected from available topics
-			topicName = availableTopics[choiceNum-1]
+		if err != nil {
+			return fmt.Errorf("invalid input: please enter a number")
 		}
+		if choiceNum < 1 || choiceNum > len(availableTopics) {
+			return fmt.Errorf("invalid choice: please select a number between 1 and %d", len(availableTopics))
+		}
+		
+		// Selected from available topics
+		topicName = availableTopics[choiceNum-1]
 	}
 
 	// Validate topic name
