@@ -50,7 +50,7 @@ func main() {
 				time.Sleep(3 * time.Second)
 			}
 
-			fmt.Println("Checking to pull docker images...")
+			fmt.Println("Checking to pull docker images...(this can take a few minutes)")
 			composeCmd := exec.Command("docker-compose", "-p", "klaunch", "up", "-d")
 			err = composeCmd.Run()
 			if err != nil {
@@ -111,21 +111,73 @@ func main() {
 	}
 
 	var deleteCmd = &cobra.Command{
-		Use:   "delete",
-		Short: "Deletes all containers and topics",
+		Use:   "delete [all|connectors|topics]",
+		Short: "Deletes connectors and/or topics with interactive selection",
+		Long: `Delete connectors and topics with options:
+  delete all        - Delete all connectors and topics (with confirmation)
+  delete connectors - Interactive connector selection
+  delete topics     - Interactive topic selection
+  delete           - Interactive selection for both connectors and topics`,
+		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Deleting containers...")
-			if err := delete_connectors(); err != nil {
-				fmt.Println("Error deleting connectors:", err)
-			} else {
-				fmt.Println("Containers deleted successfully!")
+			var target string
+			if len(args) > 0 {
+				target = args[0]
 			}
 
-			fmt.Println("Deleting topics...")
-			if err := delete_topics(); err != nil {
-				fmt.Println("Error deleting topics:", err)
-			} else {
-				fmt.Println("Topics deleted successfully!")
+			switch target {
+			case "all":
+				fmt.Printf("Are you sure you want to delete ALL connectors and topics? (y/N): ")
+				var confirm string
+				fmt.Scanln(&confirm)
+				if strings.ToLower(confirm) != "y" && strings.ToLower(confirm) != "yes" {
+					fmt.Println("Operation cancelled.")
+					return
+				}
+				
+				if err := delete_all_tasks(); err != nil {
+					fmt.Println("Error deleting all tasks:", err)
+				} else {
+					fmt.Println("All connectors and topics deleted successfully!")
+				}
+
+			case "connectors":
+				fmt.Println("Interactive task deletion...")
+				if err := delete_tasks_interactive(true); err != nil {
+					fmt.Println("Error in task deletion:", err)
+				}
+
+			case "topics":
+				fmt.Println("Interactive task deletion...")
+				if err := delete_tasks_interactive(true); err != nil {
+					fmt.Println("Error in task deletion:", err)
+				}
+
+			default:
+				// Interactive mode for both
+				fmt.Println("What would you like to delete?")
+				fmt.Println("1. Delete all")
+				fmt.Println("2. Select task") 
+				fmt.Println("0. Cancel")
+				fmt.Print("Select option (0-2): ")
+
+				var choice string
+				fmt.Scanln(&choice)
+
+				switch choice {
+				case "1":
+					if err := delete_tasks_interactive(false); err != nil {
+						fmt.Println("Error in task deletion:", err)
+					}
+				case "2":
+					if err := delete_tasks_interactive(true); err != nil {
+						fmt.Println("Error in task deletion:", err)
+					}
+				case "0":
+					fmt.Println("Operation cancelled.")
+				default:
+					fmt.Println("Invalid option. Operation cancelled.")
+				}
 			}
 		},
 	}
@@ -135,9 +187,10 @@ func main() {
 		Short: "Shows components or messages",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			verbose, _ := cmd.Flags().GetBool("verbose")
 			componentOrMessage := args[0]
 			if componentOrMessage == "components" {
-				if err := list_components(); err != nil {
+				if err := list_components(verbose); err != nil {
 					fmt.Println("Error listing components:", err)
 				}
 			} else if componentOrMessage == "messages" {
@@ -149,6 +202,8 @@ func main() {
 			}
 		},
 	}
+	
+	showCmd.Flags().Bool("verbose", false, "Show full stack traces for failed tasks")
 
 	var logsCmd = &cobra.Command{
 		Use:   "logs",

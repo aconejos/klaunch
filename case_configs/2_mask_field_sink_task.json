@@ -1,0 +1,21 @@
+{
+    "name": "mdb-kafka-sink-task-mask-field",
+    "config": {
+    "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+    "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/?replicaSet=replset",
+    "database": "sink_db_test",
+    "collection": "sink_collection_test",
+    "tasks.max": "1",
+    "poll.max.batch.size": "1000",
+    "poll.await.time.ms": "5000",
+    "topics":"source_db_test.source_collection_test",
+    "writemodel.strategy":"com.mongodb.kafka.connect.sink.writemodel.strategy.UpdateOneDefaultStrategy",
+    "document.id.strategy":"com.mongodb.kafka.connect.sink.processor.id.strategy.BsonOidStrategy",
+    "transforms": "extractDocument,maskEmail",
+    "transforms.extractDocument.type": "org.apache.kafka.connect.transforms.ExtractField$Value",
+    "transforms.extractDocument.field": "fullDocument",
+    "transforms.maskEmail.type": "org.apache.kafka.connect.transforms.MaskField$Value",
+    "transforms.maskEmail.fields": "email,contact_email,user_email",
+    "transforms.maskEmail.replacement": "***MASKED***"
+    } 
+}

@@ -12,3 +12,4 @@ coverag*/*
 *.bak
 *.swp
 *.pid
+node_modules/*

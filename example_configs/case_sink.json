@@ -1,0 +1,14 @@
+{
+    "name": "Deepesh-dhiman-mongodb1",
+    "config": {
+      "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+      "tasks.max": "1",
+      "topics":"source_db_test.source_collection_test",
+      "connection.uri": "mongodb://host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/?replicaSet=replset",
+      "database": "migration",
+      "collection": "kafka-test",
+      "transforms": "removeSEQID",
+      "transforms.removeSEQID.type": "org.apache.kafka.connect.transforms.ReplaceField$Value",
+      "transforms.removeSEQID.blacklist": "SEQID"
+    }
+}

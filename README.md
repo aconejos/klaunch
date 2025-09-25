@@ -69,6 +69,74 @@ Cluster Zookeeper Hosts: zookeeper1
 ![CMAK](./diagram2.png)
 
 
+## Release Process
+
+### Creating a New Release
+
+To create a new release version of Klaunch:
+
+1. **Update Version and Create Release Commit**
+   ```bash
+   # Make your changes and commit them
+   git add .
+   git commit -m "feat: Updates on task creation, selection and observability"
+   
+   # Create release commit
+   git commit --allow-empty -m "Release v1.0.2 - Updates on task creation, selection and observability"
+   ```
+
+2. **Create and Push Git Tag**
+   ```bash
+   git tag -a v1.0.2 -m "Release v1.0.2"
+   git push origin main
+   git push origin v1.0.2
+   ```
+
+3. **Build Distribution Artifacts**
+   ```bash
+   # Checkout the release tag
+   git checkout v1.0.2
+   
+   # Build distribution packages
+   make dist
+   ```
+   
+   **Note**: Linux builds require CGO for Kafka dependencies and cannot be cross-compiled from macOS. Build on Linux system:
+   ```bash
+   # On Linux system:
+   make build-linux
+   tar -czf dist/klaunch-v1.0.2-linux-amd64.tar.gz -C build klaunch_linux
+   ```
+
+4. **Create GitHub Release (if gh CLI available)**
+   ```bash
+   gh release create v1.0.2 \
+     --title "Release v1.0.2" \
+     --notes "Description of changes" \
+     --verify-tag \
+     dist/klaunch-v1.0.2-darwin-amd64.tar.gz
+   ```
+
+5. **Create Next Development Branch**
+   ```bash
+   git checkout main
+   git checkout -b vX.Y.(Z+1)
+   git push origin vX.Y.(Z+1)
+   ```
+
+### Available Make Targets for Releases
+
+- `make release` - Build optimized release binary for current platform
+- `make build-linux` - Cross-compile for Linux (may fail due to CGO dependencies)
+- `make dist` - Create distribution packages for both platforms
+- `make info` - Display current version and build information
+
+### Distribution Artifacts
+
+Release artifacts are created in the `dist/` directory:
+- `klaunch-v1.0.2-darwin-amd64.tar.gz` - macOS binary
+- `klaunch-v1.0.2-linux-amd64.tar.gz` - Linux binary (if built on Linux)
+
 ### Disclaimer
 
 > This project uses code from other sources.
