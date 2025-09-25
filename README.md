@@ -79,23 +79,23 @@ To create a new release version of Klaunch:
    ```bash
    # Make your changes and commit them
    git add .
-   git commit -m "feat: Your feature description"
+   git commit -m "feat: Updates on task creation, selection and observability"
    
    # Create release commit
-   git commit --allow-empty -m "Release vX.Y.Z - Brief description of changes"
+   git commit --allow-empty -m "Release v1.0.2 - Updates on task creation, selection and observability"
    ```
 
 2. **Create and Push Git Tag**
    ```bash
-   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git tag -a v1.0.2 -m "Release v1.0.2"
    git push origin main
-   git push origin vX.Y.Z
+   git push origin v1.0.2
    ```
 
 3. **Build Distribution Artifacts**
    ```bash
    # Checkout the release tag
-   git checkout vX.Y.Z
+   git checkout v1.0.2
    
    # Build distribution packages
    make dist
@@ -105,16 +105,16 @@ To create a new release version of Klaunch:
    ```bash
    # On Linux system:
    make build-linux
-   tar -czf dist/klaunch-vX.Y.Z-linux-amd64.tar.gz -C build klaunch_linux
+   tar -czf dist/klaunch-v1.0.2-linux-amd64.tar.gz -C build klaunch_linux
    ```
 
 4. **Create GitHub Release (if gh CLI available)**
    ```bash
-   gh release create vX.Y.Z \
-     --title "Release vX.Y.Z" \
+   gh release create v1.0.2 \
+     --title "Release v1.0.2" \
      --notes "Description of changes" \
      --verify-tag \
-     dist/klaunch-vX.Y.Z-darwin-amd64.tar.gz
+     dist/klaunch-v1.0.2-darwin-amd64.tar.gz
    ```
 
 5. **Create Next Development Branch**
@@ -134,8 +134,8 @@ To create a new release version of Klaunch:
 ### Distribution Artifacts
 
 Release artifacts are created in the `dist/` directory:
-- `klaunch-vX.Y.Z-darwin-amd64.tar.gz` - macOS binary
-- `klaunch-vX.Y.Z-linux-amd64.tar.gz` - Linux binary (if built on Linux)
+- `klaunch-v1.0.2-darwin-amd64.tar.gz` - macOS binary
+- `klaunch-v1.0.2-linux-amd64.tar.gz` - Linux binary (if built on Linux)
 
 ### Disclaimer
 
