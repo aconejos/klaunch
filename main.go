@@ -50,7 +50,7 @@ func main() {
 				time.Sleep(3 * time.Second)
 			}
 
-			fmt.Println("Checking to pull docker images...")
+			fmt.Println("Checking to pull docker images...(this can take a few minutes)")
 			composeCmd := exec.Command("docker-compose", "-p", "klaunch", "up", "-d")
 			err = composeCmd.Run()
 			if err != nil {
