@@ -21,10 +21,10 @@ If you want to build manually on a Ubuntu/Debian-based machine, please follow th
 ```
 sudo apt install golang-go
 cd klaunch
-go build
+go build -o klaunch_linux
 ```
 
-Steps may vary on other distributions install process like `sudo dnf install golang` or `sudo pacman -S go` but usually installing the standard Go compiled, linked and stdlib is enough.
+Steps may vary on other distributions install process like `sudo dnf install golang` or `sudo pacman -S go` but usually installing the standard Go compiler, linked and stdlib is enough.
 
 ##  Commands
 
