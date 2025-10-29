@@ -11,12 +11,11 @@
     "topics":"source_db_test.source_collection_test",
     "writemodel.strategy":"com.mongodb.kafka.connect.sink.writemodel.strategy.UpdateOneDefaultStrategy",
     "document.id.strategy":"com.mongodb.kafka.connect.sink.processor.id.strategy.BsonOidStrategy",
-    "change.data.capture.handler": "com.mongodb.kafka.connect.sink.cdc.mongodb.ChangeStreamHandler",
-    "value.converter.schemas.enable": "false",
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "transforms": "account",
+    "transforms": "extractDocument,account",
+    "transforms.extractDocument.type": "org.apache.kafka.connect.transforms.ExtractField$Value",
+    "transforms.extractDocument.field": "fullDocument",
     "transforms.account.type": "org.apache.kafka.connect.transforms.MaskField$Value",
-    "transforms.account.fields": "accounts_number",
+    "transforms.account.fields": "account_number",
     "transforms.account.replacement": "***-***-***"
     } 
 }

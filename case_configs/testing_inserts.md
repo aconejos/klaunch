@@ -22,7 +22,7 @@ docker exec kafka-connect kafka-console-consumer --topic disable.db_name.coll_na
 
 use mdb_kafka_test
 
-db.connector_test.insertOne({name: "Example Document", description: "This is an example document1"})
+  db.source_collection_test.insertOne({name: "Example Document", description: "This is an example document1, account: 123", email: "test@mail.com"})
 db.connector_test.insertOne({name: "Example Document", description: "This is an example document2"})
 db.connector_test.insertOne({name: "Example Document", description: "This is an example document3"})
 
