@@ -144,7 +144,9 @@ services:
       CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
       CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.WorkerSourceTask=TRACE,org.apache.kafka.connect=TRACE"
       #CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=DEBUG,org.reflections=ERROR,org.apache.kafka.connect.runtime.WorkerSourceTask=DEBUG,org.apache.kafka.connect=DEBUG"
-      CONNECT_JVM_PERFORMANCE_OPTS: "-javaagent:/tmp/jmx_prometheus_javaagent-0.19.0.jar=8091:/tmp/kafka_connect.yml"
+      # KAFKA_OPTS is honored by the Kafka Connect launch scripts across CP versions;
+      # CONNECT_JVM_PERFORMANCE_OPTS is silently dropped by cp-kafka-connect >= 8.x.
+      KAFKA_OPTS: "-javaagent:/tmp/jmx_prometheus_javaagent-0.19.0.jar=8091:/tmp/kafka_connect.yml"
     volumes:
       - $PWD/volumes/jmx_prometheus_javaagent-0.19.0.jar:/tmp/jmx_prometheus_javaagent-0.19.0.jar
       - $PWD/volumes/kafka_connect.yml:/tmp/kafka_connect.yml
@@ -196,6 +198,9 @@ services:
     container_name: grafana
     depends_on:
       - prometheus
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: foobar
     volumes:
       - $PWD/volumes/provisioning:/etc/grafana/provisioning
       - $PWD/volumes/dashboards:/var/lib/grafana/dashboards

@@ -1,0 +1,172 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Klaunch — Connector-focused view: task states, throughput, errors, DLQ pressure",
+  "editable": true,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1700000000000,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Running tasks (per connector)",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "kafka_connect_connect_worker_metrics_connector_running_task_count",
+          "legendFormat": "{{connector}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "horizontal",
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "Failed tasks (per connector)",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 0},
+      "targets": [
+        {
+          "expr": "kafka_connect_connect_worker_metrics_connector_failed_task_count",
+          "legendFormat": "{{connector}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "horizontal",
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "Paused tasks (per connector)",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 6, "w": 8, "x": 16, "y": 0},
+      "targets": [
+        {
+          "expr": "kafka_connect_connect_worker_metrics_connector_paused_task_count",
+          "legendFormat": "{{connector}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "horizontal",
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 1}]}}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Source record write rate (per connector task)",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+      "targets": [
+        {
+          "expr": "kafka_connect_source_task_metrics_source_record_write_rate",
+          "legendFormat": "{{connector}} / task {{task}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Source record poll rate (per connector task)",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+      "targets": [
+        {
+          "expr": "kafka_connect_source_task_metrics_source_record_poll_rate",
+          "legendFormat": "{{connector}} / task {{task}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Task errors (logged / record / failures / skipped / retries)",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
+      "targets": [
+        {"expr": "kafka_connect_task_error_metrics_total_errors_logged", "legendFormat": "logged {{connector}}/t{{task}}", "refId": "A"},
+        {"expr": "kafka_connect_task_error_metrics_total_record_errors", "legendFormat": "record_errors {{connector}}/t{{task}}", "refId": "B"},
+        {"expr": "kafka_connect_task_error_metrics_total_record_failures", "legendFormat": "failures {{connector}}/t{{task}}", "refId": "C"},
+        {"expr": "kafka_connect_task_error_metrics_total_records_skipped", "legendFormat": "skipped {{connector}}/t{{task}}", "refId": "D"},
+        {"expr": "kafka_connect_task_error_metrics_total_retries", "legendFormat": "retries {{connector}}/t{{task}}", "refId": "E"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Dead-letter queue produce requests",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+      "targets": [
+        {
+          "expr": "kafka_connect_task_error_metrics_deadletterqueue_produce_requests",
+          "legendFormat": "{{connector}} / task {{task}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Worker rebalance activity",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22},
+      "targets": [
+        {"expr": "kafka_connect_connect_worker_rebalance_metrics_rebalance_avg_time_ms", "legendFormat": "avg time (ms)", "refId": "A"},
+        {"expr": "kafka_connect_connect_worker_rebalance_metrics_time_since_last_rebalance_ms", "legendFormat": "since last (ms)", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "ms"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Sink task put batch time",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22},
+      "targets": [
+        {"expr": "kafka_connect_sink_task_metrics_put_batch_avg_time_ms", "legendFormat": "avg {{connector}}/t{{task}}", "refId": "A"},
+        {"expr": "kafka_connect_sink_task_metrics_put_batch_max_time_ms", "legendFormat": "max {{connector}}/t{{task}}", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "ms"}}
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": ["klaunch", "kafka-connect"],
+  "templating": {"list": []},
+  "time": {"from": "now-15m", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "klaunch-connect-tasks",
+  "uid": "klaunch-connect-tasks",
+  "version": 1
+}
