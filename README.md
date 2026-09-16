@@ -43,6 +43,12 @@ By default connects to the [release repository](https://repo1.maven.org/maven2/o
 
 - logs: Dump a the Kafka connect log file into $repository/logs path with the following format: `$timestamps_kafka_connect.log`
 
+- observability [host:port]: With no arg, prints the current Kafka Connect scrape target and the Prometheus (`http://localhost:9090`) / Grafana (`http://localhost:3000`, admin/foobar) URLs. With a `host:port` arg, rewrites the `kafka-connect` job in `volumes/prometheus.yml` and restarts the `prometheus` container so the new target is picked up. Default target: `kafka-connect:8091`.
+
+  Remote Kafka Connect scraping requires the target worker to already run the JMX Prometheus javaagent, e.g. `-javaagent:/path/jmx_prometheus_javaagent.jar=PORT:kafka_connect.yml`. The mapping config we ship (`volumes/kafka_connect.yml`) can be reused. Klaunch does not install the agent for you.
+
+  The Grafana dashboard `klaunch-connect-tasks` (Connect-focused: task states, throughput, errors, DLQ, rebalances) is provisioned automatically alongside the existing kafka / zookeeper / kafka-connect-cluster dashboards.
+
 
 ### Components
 

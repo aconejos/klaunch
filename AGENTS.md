@@ -34,6 +34,13 @@ Klaunch is a single-binary Cobra CLI (`main.go`) that stands up a Kafka + MongoD
 - `main.go` `delete topics` branch calls the same interactive connector-delete path as `delete connectors` (bug); use `delete all` for a full wipe.
 - Compose file references `$PWD/volumes/...` — always invoke Compose from repo root.
 
+## Observability
+- Prometheus + Grafana ship in the main compose (ports `9090`, `3000`; Grafana `admin`/`foobar`). Grafana auto-provisions from `volumes/provisioning/{datasources,dashboards}/`, loading everything in `volumes/dashboards/` — drop new dashboards there, no CLI plumbing.
+- `klaunch observability [host:port]` shows or overrides the `kafka-connect` scrape target. It edits `volumes/prometheus.yml` in place (regex on the `kafka-connect` job block) and does `docker restart prometheus`. Do not hand-edit that file while the command is being used — treat it as generated.
+- Only the `kafka-connect` job is configurable. `kafka` and `zookeeper` jobs stay pinned to local containers.
+- Remote scraping requires the target worker to already expose JMX Prometheus. Klaunch does not install the agent.
+- `klaunch stop` does not reset the scrape target by design.
+
 ## Instruction sources
 - `README.md` — user-facing usage + release process (verified).
 - `CLAUDE.md`, `TESTS.md` — historical notes; the `test/` directory they describe was never created. Trust code over these two.
