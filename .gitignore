@@ -13,3 +13,4 @@ coverag*/*
 *.swp
 *.pid
 node_modules/*
+.play*

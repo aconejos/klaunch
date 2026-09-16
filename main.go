@@ -230,7 +230,28 @@ func main() {
 		},
 	}
 
-	rootCmd.AddCommand(startCmd, stopCmd, createCmd, deleteCmd, showCmd, logsCmd)
+	var observabilityCmd = &cobra.Command{
+		Use:   "observability [host:port]",
+		Short: "Show or set the Kafka Connect scrape target for the local Prometheus",
+		Long: `Without arguments, prints the current kafka-connect scrape target and the
+Prometheus / Grafana URLs. With a host:port argument, rewrites the kafka-connect
+job in volumes/prometheus.yml and restarts the prometheus container so the new
+target is picked up. Default target: kafka-connect:8091.`,
+		Args: cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				if err := observability_show(); err != nil {
+					fmt.Println("Error:", err)
+				}
+				return
+			}
+			if err := observability_set(args[0]); err != nil {
+				fmt.Println("Error:", err)
+			}
+		},
+	}
+
+	rootCmd.AddCommand(startCmd, stopCmd, createCmd, deleteCmd, showCmd, logsCmd, observabilityCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

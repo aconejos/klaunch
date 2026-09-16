@@ -23,7 +23,7 @@ whitelistObjectNames:
   # Please note that this increases the scrape duration by about 1-2 seconds as it needs to parse a lot of data.
   - "kafka.consumer:*"
   - "kafka.producer:*"
-  - "com.mongodb:*"
+  - "com.mongodb.kafka.connect:*"
 blacklistObjectNames:
   # This will ignore the admin client metrics from KSQL server and will blacklist certain metrics
   # that do not make sense for ingestion.
@@ -148,3 +148,10 @@ rules:
     name: kafka_$1_$2_$3
     labels:
       client_type: $1
+  # MongoDB Kafka Connector task-level metrics use the com.mongodb.kafka.connect JMX domain
+  # (see whitelist above). They surface with auto-derived names because the generic
+  # "- pattern: '.*'" catch-all at the top of this rules block matches first:
+  #   com_mongodb_kafka_connect_sink_task_metrics_<attr>{connector=..,task=..}
+  #   com_mongodb_kafka_connect_source_task_metrics_<attr>{connector=..,task=..}
+  # Dashboards query those names directly. To rename them (drop the com_ prefix),
+  # specific rules would need to be placed BEFORE the ".*" line at the top of rules.
