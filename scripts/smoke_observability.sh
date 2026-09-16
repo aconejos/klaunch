@@ -45,6 +45,15 @@ for arg in "$@"; do
   esac
 done
 
+# Unique run-id keeps each invocation from tripping over the previous run's
+# Kafka Connect offsets (change-stream resume token) in docker-connect-offsets.
+# ponytail: unique names per run instead of purging the offset topic; swap to
+# `DELETE /connectors/{name}/offsets` (Connect 3.5+) if topic clutter matters.
+RUN_ID=$(date +%s)
+CONN_SRC="klaunch-smoke-src-$RUN_ID"
+CONN_SINK="klaunch-smoke-sink-$RUN_ID"
+TOPIC_PREFIX="klaunchsmoke$RUN_ID"
+
 step() { printf '\n\033[1;34m==>\033[0m %s\n' "$*"; }
 ok()   { printf '   \033[1;32mok\033[0m %s\n' "$*"; }
 fail() { printf '   \033[1;31mFAIL\033[0m %s\n' "$*" >&2; exit 1; }
@@ -58,9 +67,12 @@ need docker; need jq; need curl
 # Cleanup runs on any exit path (pass, fail, ctrl-c). Idempotent.
 cleanup() {
   local rc=$?
-  curl -s -X DELETE "$CONNECT_URL/connectors/klaunch-smoke-src"  >/dev/null 2>&1 || true
-  curl -s -X DELETE "$CONNECT_URL/connectors/klaunch-smoke-sink" >/dev/null 2>&1 || true
+  curl -s -X DELETE "$CONNECT_URL/connectors/$CONN_SRC"  >/dev/null 2>&1 || true
+  curl -s -X DELETE "$CONNECT_URL/connectors/$CONN_SINK" >/dev/null 2>&1 || true
   docker rm -f "$MONGO_NAME" >/dev/null 2>&1 || true
+  # Drop the run-specific Kafka topic so it doesn't accumulate.
+  docker exec kafka-connect kafka-topics --bootstrap-server kafka1:19091 \
+    --delete --topic "$TOPIC_PREFIX.src.coll" >/dev/null 2>&1 || true
   [ -n "${tmp:-}" ] && rm -rf "$tmp"
   if [ "$DO_STOP" -eq 1 ] && [ $rc -eq 0 ]; then
     "$BIN" stop >/dev/null && printf '   \033[1;32mok\033[0m klaunch stack stopped\n'
@@ -120,37 +132,53 @@ ok "mongo replica set ready"
 
 tmp=$(mktemp -d)
 cat > "$tmp/src.json" <<EOF
-{"name":"klaunch-smoke-src","config":{
+{"name":"$CONN_SRC","config":{
   "connector.class":"com.mongodb.kafka.connect.MongoSourceConnector",
   "connection.uri":"mongodb://$MONGO_NAME:27017/?replicaSet=replset",
   "database":"src","collection":"coll","tasks.max":"1",
   "poll.max.batch.size":"100","poll.await.time.ms":"500",
   "startup.mode":"copy_existing","output.format.value":"json",
-  "topic.prefix":"klaunchsmoke"}}
+  "topic.prefix":"$TOPIC_PREFIX"}}
 EOF
 cat > "$tmp/sink.json" <<EOF
-{"name":"klaunch-smoke-sink","config":{
+{"name":"$CONN_SINK","config":{
   "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
   "connection.uri":"mongodb://$MONGO_NAME:27017/?replicaSet=replset",
   "database":"dest","collection":"coll","tasks.max":"1",
-  "topics":"klaunchsmoke.src.coll",
+  "topics":"$TOPIC_PREFIX.src.coll",
   "key.converter":"org.apache.kafka.connect.json.JsonConverter",
   "value.converter":"org.apache.kafka.connect.json.JsonConverter",
   "key.converter.schemas.enable":"false",
   "value.converter.schemas.enable":"false"}}
 EOF
-# Wipe stale smoke connectors from a previous aborted run before creating.
-curl -s -X DELETE "$CONNECT_URL/connectors/klaunch-smoke-src"  >/dev/null 2>&1 || true
-curl -s -X DELETE "$CONNECT_URL/connectors/klaunch-smoke-sink" >/dev/null 2>&1 || true
-sleep 2
 curl -sf -X POST -H 'Content-Type: application/json' --data @"$tmp/src.json" \
   "$CONNECT_URL/connectors" >/dev/null
 curl -sf -X POST -H 'Content-Type: application/json' --data @"$tmp/sink.json" \
   "$CONNECT_URL/connectors" >/dev/null
-sleep 8
-for c in klaunch-smoke-src klaunch-smoke-sink; do
-  state=$(curl -sf "$CONNECT_URL/connectors/$c/status" | jq -r '.tasks[0].state')
-  [ "$state" = "RUNNING" ] || fail "$c task not RUNNING (state=$state)"
+# Give tasks a chance to spin up. Retry once because the source can transiently
+# FAIL right after rs.initiate before mongos elects a primary.
+for attempt in 1 2 3; do
+  sleep 8
+  bad=0
+  for c in "$CONN_SRC" "$CONN_SINK"; do
+    state=$(curl -sf "$CONNECT_URL/connectors/$c/status" | jq -r '.tasks[0].state // "NO_TASK"')
+    [ "$state" = "RUNNING" ] || bad=$((bad+1))
+  done
+  [ "$bad" = "0" ] && break
+  echo "  ...tasks not RUNNING yet (attempt $attempt/3); restarting failed tasks"
+  for c in "$CONN_SRC" "$CONN_SINK"; do
+    curl -s -X POST "$CONNECT_URL/connectors/$c/restart?includeTasks=true&onlyFailed=true" >/dev/null || true
+  done
+done
+for c in "$CONN_SRC" "$CONN_SINK"; do
+  state=$(curl -sf "$CONNECT_URL/connectors/$c/status" | jq -r '.tasks[0].state // "NO_TASK"')
+  if [ "$state" != "RUNNING" ]; then
+    trace=$(curl -sf "$CONNECT_URL/connectors/$c/status" | jq -r '.tasks[0].trace // "no trace"' | head -20)
+    echo "  --- $c trace (first 20 lines) ---" >&2
+    echo "$trace" >&2
+    echo "  ---" >&2
+    fail "$c task not RUNNING (state=$state)"
+  fi
 done
 ok "src + sink connectors RUNNING"
 
@@ -168,19 +196,38 @@ sleep 12  # let sink drain + at least one Prometheus scrape
 step "MongoDB sink task metrics (com.mongodb.kafka.connect JMX domain)"
 counts=(records_successful in_task_put in_connect_framework processing_phases batch_writes_successful)
 gauges=(latest_kafka_time_difference_ms in_task_put_duration_ms in_connect_framework_duration_ms processing_phases_duration_ms batch_writes_successful_duration_ms)
+describe() {
+  case "$1" in
+    records_successful)                    echo "Kafka records the sink task successfully wrote to MongoDB" ;;
+    latest_kafka_time_difference_ms)       echo "ms between the sink task clock and the last record received (lag)" ;;
+    in_task_put)                           echo "Kafka Connect framework put() invocations on the sink task" ;;
+    in_task_put_duration_ms)               echo "total ms spent inside put()" ;;
+    in_connect_framework)                  echo "framework code executions after the first put() (framework overhead count)" ;;
+    in_connect_framework_duration_ms)      echo "total ms in framework code (excludes time in task code)" ;;
+    processing_phases)                     echo "batches processed by the task before writing to MongoDB (includes SMTs)" ;;
+    processing_phases_duration_ms)         echo "total ms in the processing phase (SMTs + batch prep)" ;;
+    batch_writes_successful)               echo "batches the sink task successfully wrote to MongoDB" ;;
+    batch_writes_successful_duration_ms)   echo "total ms spent writing successful batches to MongoDB" ;;
+    *)                                     echo "" ;;
+  esac
+}
 bad=0
 check() {
   local m=$1 mustBeNonZero=$2
-  local q="com_mongodb_kafka_connect_sink_task_metrics_$m"
-  local v
-  v=$(curl -sf "$PROM_URL/api/v1/query?query=$q" | jq -r '.data.result[0].value[1] // "MISSING"')
+  # Filter by this run's sink connector so stale series from previous runs
+  # (Prometheus retains them until the JVM restarts) don't leak through.
+  local q="com_mongodb_kafka_connect_sink_task_metrics_${m}{connector=\"$CONN_SINK\"}"
+  local v desc
+  v=$(curl -sf --get "$PROM_URL/api/v1/query" --data-urlencode "query=$q" \
+        | jq -r '.data.result[0].value[1] // "MISSING"')
+  desc=$(describe "$m")
   if [ "$v" = "MISSING" ]; then
-    echo "  MISS $m (not exported)"; bad=$((bad+1)); return
+    printf '  MISS %-40s not exported (%s)\n' "$m" "$desc"; bad=$((bad+1)); return
   fi
   if [ "$mustBeNonZero" = "1" ] && [ "$v" = "0" ]; then
-    echo "  MISS $m (still 0 after load)"; bad=$((bad+1)); return
+    printf '  MISS %-40s still 0 after load (%s)\n' "$m" "$desc"; bad=$((bad+1)); return
   fi
-  echo "  ok   $m = $v"
+  printf '  ok   %-40s = %-10s # %s\n' "$m" "$v" "$desc"
 }
 for m in "${counts[@]}"; do check "$m" 1; done
 for m in "${gauges[@]}"; do check "$m" 0; done
