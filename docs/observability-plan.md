@@ -95,7 +95,16 @@ Metric expressions validated against actual `/metrics` output during the smoke t
 
 ### End-to-end smoke — "working as advertised"
 
-All commands from repo root. Each step lists the expected observable.
+Scripted in `scripts/smoke_observability.sh`. Runs steps 3–9 below with hard
+assertions (exits non-zero on the first failure) and cleans up via an EXIT
+trap so a failed run doesn't leave stale connectors or a smoke Mongo behind.
+
+    make build
+    ./klaunch start   # or pass --start to the script
+    ./scripts/smoke_observability.sh
+    # optional: --start (bring stack up first) / --stop (klaunch stop at end)
+
+Manual walk-through (what the script does):
 
 1. **Fresh state.** `./klaunch stop && docker volume rm $(docker volume ls -q -f name=klaunch) 2>/dev/null || true` → no `klaunch_*` containers, no leftover volumes.
 2. **Start full infra.** `./klaunch start` → `docker ps` shows `zookeeper1`, `kafka1/2/3`, `kafka-connect`, `schema-registry`, `cmak`, `prometheus`, `grafana`. `.env` shows the pulled `MONGO_KAFKA_CONNECT_VERSION`.
