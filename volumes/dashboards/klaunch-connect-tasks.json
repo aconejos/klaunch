@@ -156,6 +156,100 @@
         {"expr": "kafka_connect_sink_task_metrics_put_batch_max_time_ms", "legendFormat": "max {{connector}}/t{{task}}", "refId": "B"}
       ],
       "fieldConfig": {"defaults": {"unit": "ms"}}
+    },
+    {
+      "type": "row",
+      "title": "MongoDB Sink Task",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 30},
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "MongoDB records written (rate)",
+      "description": "records-successful: total records the MongoDB sink task successfully wrote to MongoDB",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 31},
+      "targets": [
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_records_successful[1m])", "legendFormat": "{{connector}} / {{task}}", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Kafka-vs-Sink lag",
+      "description": "latest-kafka-time-difference-ms: time diff between the sink task clock and the timestamp of the last record received. Rises when the sink falls behind.",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 31},
+      "targets": [
+        {"expr": "com_mongodb_kafka_connect_sink_task_metrics_latest_kafka_time_difference_ms", "legendFormat": "{{connector}} / {{task}}", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "ms"}}
+    },
+    {
+      "type": "stat",
+      "title": "Total records written (since restart)",
+      "description": "records-successful cumulative",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 31},
+      "targets": [
+        {"expr": "com_mongodb_kafka_connect_sink_task_metrics_records_successful", "legendFormat": "{{connector}} / {{task}}", "refId": "A"}
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "horizontal",
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}}}
+    },
+    {
+      "type": "timeseries",
+      "title": "put() calls / sec + avg latency",
+      "description": "in-task-put: number of Kafka Connect framework put() invocations on the MongoDB sink task. Avg latency = in-task-put-duration-ms / in-task-put.",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 39},
+      "targets": [
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_in_task_put[1m])", "legendFormat": "puts/s {{connector}}/{{task}}", "refId": "A"},
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_in_task_put_duration_ms[1m]) / clamp_min(rate(com_mongodb_kafka_connect_sink_task_metrics_in_task_put[1m]), 0.0001)", "legendFormat": "avg ms/put {{connector}}/{{task}}", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Kafka Connect framework overhead",
+      "description": "in-connect-framework: time spent in framework code between put() invocations. Avg = in-connect-framework-duration-ms / in-connect-framework. Excludes task code time.",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 39},
+      "targets": [
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_in_connect_framework[1m])", "legendFormat": "framework calls/s {{connector}}/{{task}}", "refId": "A"},
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_in_connect_framework_duration_ms[1m]) / clamp_min(rate(com_mongodb_kafka_connect_sink_task_metrics_in_connect_framework[1m]), 0.0001)", "legendFormat": "avg ms {{connector}}/{{task}}", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "SMT / processing phase time",
+      "description": "processing-phases: batches processed by the MongoDB sink task before writing to MongoDB (includes Single Message Transforms). Avg = processing-phases-duration-ms / processing-phases.",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 47},
+      "targets": [
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_processing_phases[1m])", "legendFormat": "phases/s {{connector}}/{{task}}", "refId": "A"},
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_processing_phases_duration_ms[1m]) / clamp_min(rate(com_mongodb_kafka_connect_sink_task_metrics_processing_phases[1m]), 0.0001)", "legendFormat": "avg ms {{connector}}/{{task}}", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Batch writes to MongoDB (rate + avg latency)",
+      "description": "batch-writes-successful: batches the MongoDB sink task wrote to MongoDB. Avg latency = batch-writes-successful-duration-ms / batch-writes-successful.",
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 47},
+      "targets": [
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_batch_writes_successful[1m])", "legendFormat": "batches/s {{connector}}/{{task}}", "refId": "A"},
+        {"expr": "rate(com_mongodb_kafka_connect_sink_task_metrics_batch_writes_successful_duration_ms[1m]) / clamp_min(rate(com_mongodb_kafka_connect_sink_task_metrics_batch_writes_successful[1m]), 0.0001)", "legendFormat": "avg ms/batch {{connector}}/{{task}}", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
     }
   ],
   "refresh": "10s",

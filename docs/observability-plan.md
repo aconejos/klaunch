@@ -57,11 +57,25 @@ Driven by rules already in `volumes/kafka_connect.yml`. Panels:
 
 - Connector state count (running/paused/failed) from `kafka_connect_connector_metrics`.
 - Per-connector throughput from `sum by (connector) (kafka_connect_source_task_metrics_source_record_write_total)` and the sink equivalent.
-- Errors per (connector, task) from `kafka_connect_task_error_metrics_total_errors_total`.
+- Errors per (connector, task) from `kafka_connect_task_error_metrics_total_errors_logged`.
 - DLQ pressure from `kafka_connect_task_error_metrics_deadletterqueue_produce_requests_total`.
 - Worker rebalance activity from `kafka_connect_connect_worker_rebalance_metrics_*`.
 
-Metric expressions will be validated against actual `/metrics` output during the smoke test before merge.
+**MongoDB Sink Task row** (added after the plan was drafted, per the "justin sink connector" reference doc). Covers all 10 sink-task metrics exposed by the MongoDB Kafka Connector 3.x under the `com.mongodb.kafka.connect` JMX domain:
+
+| Panel | Metric(s) |
+|---|---|
+| MongoDB records written (rate) | `com_mongodb_kafka_connect_sink_task_metrics_records_successful` |
+| Total records written (since restart) | same, as a stat |
+| Kafka-vs-Sink lag | `com_mongodb_kafka_connect_sink_task_metrics_latest_kafka_time_difference_ms` |
+| put() calls/sec + avg latency | `in_task_put`, `in_task_put_duration_ms` |
+| Kafka Connect framework overhead | `in_connect_framework`, `in_connect_framework_duration_ms` |
+| SMT / processing phase time | `processing_phases`, `processing_phases_duration_ms` |
+| Batch writes to MongoDB (rate + avg latency) | `batch_writes_successful`, `batch_writes_successful_duration_ms` |
+
+The whitelist entry in `volumes/kafka_connect.yml` was updated from `com.mongodb:*` to `com.mongodb.kafka.connect:*` — the former matched no MBeans because the connector uses a different JMX domain.
+
+Metric expressions validated against actual `/metrics` output during the smoke test.
 
 ## Rollout order
 

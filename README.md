@@ -47,7 +47,7 @@ By default connects to the [release repository](https://repo1.maven.org/maven2/o
 
   Remote Kafka Connect scraping requires the target worker to already run the JMX Prometheus javaagent, e.g. `-javaagent:/path/jmx_prometheus_javaagent.jar=PORT:kafka_connect.yml`. The mapping config we ship (`volumes/kafka_connect.yml`) can be reused. Klaunch does not install the agent for you.
 
-  The Grafana dashboard `klaunch-connect-tasks` (Connect-focused: task states, throughput, errors, DLQ, rebalances) is provisioned automatically alongside the existing kafka / zookeeper / kafka-connect-cluster dashboards.
+  The Grafana dashboard `klaunch-connect-tasks` (Connect-focused: task states, throughput, errors, DLQ, rebalances) is provisioned automatically alongside the existing kafka / zookeeper / kafka-connect-cluster dashboards. It also contains a **MongoDB Sink Task** row that surfaces the connector-specific metrics exposed by the MongoDB Kafka Connector under the `com.mongodb.kafka.connect` JMX domain: `records-successful`, `latest-kafka-time-difference-ms`, `in-task-put[-duration-ms]`, `in-connect-framework[-duration-ms]`, `processing-phases[-duration-ms]`, `batch-writes-successful[-duration-ms]`.
 
 
 ### Components

@@ -40,6 +40,8 @@ Klaunch is a single-binary Cobra CLI (`main.go`) that stands up a Kafka + MongoD
 - Only the `kafka-connect` job is configurable. `kafka` and `zookeeper` jobs stay pinned to local containers.
 - Remote scraping requires the target worker to already expose JMX Prometheus. Klaunch does not install the agent.
 - `klaunch stop` does not reset the scrape target by design.
+- `volumes/kafka_connect.yml` controls which JMX MBeans reach Prometheus. `whitelistObjectNames` uses JMX ObjectName syntax (`domain:key=val` pattern) — `com.mongodb:*` does NOT match `com.mongodb.kafka.connect:...` (different domain). The MongoDB Kafka Connector registers under `com.mongodb.kafka.connect:type=sink-task-metrics,connector=<>,task=sink-task-<n>` (source tasks use `type=source-task-metrics,task=source-task[-copy-existing|-change-stream]-<n>`).
+- The `- pattern: '.*'` rule at the top of the `rules:` block catches every attribute first and emits with the JMX-exporter auto-derived name (`com_mongodb_kafka_connect_sink_task_metrics_<attr>` with `connector` + `task` labels). Any specific rule placed after `.*` is dead code. To rename, put the specific rule above `.*`.
 
 ## Instruction sources
 - `README.md` — user-facing usage + release process (verified).
