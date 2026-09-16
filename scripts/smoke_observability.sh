@@ -52,6 +52,8 @@ fail() { printf '   \033[1;31mFAIL\033[0m %s\n' "$*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null || fail "missing dependency: $1"; }
 need docker; need jq; need curl
 [ -x "$BIN" ] || fail "klaunch binary not found at $BIN (run: make build)"
+"$BIN" observability --help >/dev/null 2>&1 \
+  || fail "$BIN is stale (no 'observability' command). Run: make build"
 
 # Cleanup runs on any exit path (pass, fail, ctrl-c). Idempotent.
 cleanup() {
