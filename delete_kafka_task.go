@@ -198,8 +198,9 @@ func delete_single_connector(connectorName string) error {
 func delete_single_topic(topicName string) error {
 	fmt.Printf("Deleting topic: %s\n", topicName)
 	
-	deleteCmd := exec.Command("docker", "exec", "kafka-connect", "kafka-topics", 
-		"--delete", "--bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091", 
+	// See list_topics for why -e KAFKA_OPTS= is required.
+	deleteCmd := exec.Command("docker", "exec", "-e", "KAFKA_OPTS=", "kafka-connect", "kafka-topics",
+		"--delete", "--bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091",
 		"--topic", topicName)
 	
 	output, err := deleteCmd.CombinedOutput()

@@ -211,7 +211,10 @@ func list_connectors(verbose bool) (string, error) {
 }
 
 func list_topics() ([]string, error) {
-	listCmd := exec.Command("docker", "exec", "kafka-connect", "kafka-topics", "--bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091", "--list")
+	// -e KAFKA_OPTS= blanks the inherited javaagent so the exec'd kafka-topics
+	// JVM doesn't try to bind the Prometheus agent on port 8091 (owned by the
+	// Connect worker). Without it the child JVM aborts with SIGABRT -> exit 134.
+	listCmd := exec.Command("docker", "exec", "-e", "KAFKA_OPTS=", "kafka-connect", "kafka-topics", "--bootstrap-server=kafka2:19092,kafka3:19093,kafka1:19091", "--list")
 	output, err := listCmd.Output()
 	if err != nil {
 		return nil, err

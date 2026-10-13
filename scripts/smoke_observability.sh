@@ -117,6 +117,18 @@ out=$("$BIN" observability)
 echo "$out" | grep -q "kafka-connect:8091" || fail "unexpected default target: $out"
 ok "default target = kafka-connect:8091"
 
+# 4b. show components must survive the KAFKA_OPTS-on-kafka-connect env (regression
+# guard for the 134 bug: KAFKA_OPTS leaks into every docker exec kafka-connect
+# kafka-* JVM and makes list_topics abort with SIGABRT unless klaunch blanks it
+# with -e KAFKA_OPTS= on the exec call).
+step "klaunch show components"
+out=$("$BIN" show components 2>&1) || fail "show components exited non-zero:\n$out"
+echo "$out" | grep -q "exit status" \
+  && fail "show components leaked subprocess exit status:\n$out"
+echo "$out" | grep -q "^Error listing" \
+  && fail "show components reported a listing error:\n$out"
+ok "show components clean"
+
 # 5. MongoDB smoke connectors
 step "Setting up MongoDB smoke container + connectors"
 docker rm -f "$MONGO_NAME" >/dev/null 2>&1 || true

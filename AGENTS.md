@@ -33,6 +33,7 @@ Klaunch is a single-binary Cobra CLI (`main.go`) that stands up a Kafka + MongoD
 ## Known quirks
 - `main.go` `delete topics` branch calls the same interactive connector-delete path as `delete connectors` (bug); use `delete all` for a full wipe.
 - Compose file references `$PWD/volumes/...` — always invoke Compose from repo root.
+- `KAFKA_OPTS` on the `kafka-connect` service (set by the observability feature so the JMX-Prometheus javaagent is honored by cp-kafka-connect >= 8.x) is also inherited by every `docker exec kafka-connect kafka-*` child JVM via the shared `kafka-run-class.sh`. The agent then tries to re-bind port 8091 (owned by the Connect worker), hits `BindException`, and the child JVM aborts with SIGABRT → exit 134. All klaunch `docker exec kafka-connect kafka-topics ...` call sites MUST pass `-e KAFKA_OPTS=` to blank the env for the child process. Current call sites: `list_topics` (list_components.go) and `delete_single_topic` (delete_kafka_task.go). The smoke script's `show components` step is the regression guard.
 
 ## Observability
 - Prometheus + Grafana ship in the main compose (ports `9090`, `3000`; Grafana `admin`/`foobar`). Grafana auto-provisions from `volumes/provisioning/{datasources,dashboards}/`, loading everything in `volumes/dashboards/` — drop new dashboards there, no CLI plumbing.
